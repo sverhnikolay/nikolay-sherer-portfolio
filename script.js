@@ -240,6 +240,142 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
   }
 });
 
+// The moving journey point activates each milestone when it reaches the node.
+document.querySelectorAll(".journey").forEach((journey) => {
+  const steps = [...journey.querySelectorAll(".journey-step")];
+  if (!steps.length) return;
+
+  const holdDuration = 1400;
+  const travelDuration = 900;
+  const endPause = 900;
+  const cycleDuration = steps.length * holdDuration + (steps.length - 1) * travelDuration + endPause;
+  let animationFrame = 0;
+  let cycleStartedAt = 0;
+  let activeIndex = -2;
+  let nodePositions = [];
+  let lastStepPosition = 0;
+
+  const setActiveStep = (index) => {
+    if (index === activeIndex) return;
+    activeIndex = index;
+    steps.forEach((step, stepIndex) => step.classList.toggle("is-active", stepIndex === index));
+  };
+
+  const refreshJourneyGeometry = () => {
+    const verticalJourney = window.matchMedia("(max-width: 1000px)").matches;
+    const journeyRect = journey.getBoundingClientRect();
+    const centers = steps.map((step) => {
+      const nodeRect = step.querySelector(".journey-node").getBoundingClientRect();
+      return verticalJourney
+        ? nodeRect.top + nodeRect.height / 2 - journeyRect.top
+        : nodeRect.left + nodeRect.width / 2;
+    });
+
+    if (verticalJourney) {
+      const lineStart = centers[0];
+      const lineLength = centers.at(-1) - lineStart;
+      journey.style.setProperty("--journey-line-start", `${lineStart}px`);
+      journey.style.setProperty("--journey-line-length", `${lineLength}px`);
+      nodePositions = centers.map((center) => center - lineStart);
+    } else {
+      const lineRect = journey.querySelector(".journey-line").getBoundingClientRect();
+      journey.style.removeProperty("--journey-line-start");
+      journey.style.removeProperty("--journey-line-length");
+      nodePositions = centers.map((center) => center - lineRect.left);
+    }
+  };
+
+  const setProgress = (stepPosition) => {
+    if (!nodePositions.length) refreshJourneyGeometry();
+    lastStepPosition = stepPosition;
+    const lowerIndex = Math.min(Math.floor(stepPosition), steps.length - 1);
+    const upperIndex = Math.min(lowerIndex + 1, steps.length - 1);
+    const fraction = stepPosition - lowerIndex;
+    const pointPosition = nodePositions[lowerIndex] + (nodePositions[upperIndex] - nodePositions[lowerIndex]) * fraction;
+    journey.style.setProperty("--journey-progress", `${pointPosition}px`);
+  };
+
+  const renderJourney = (now) => {
+    if (!cycleStartedAt) cycleStartedAt = now;
+    let elapsed = (now - cycleStartedAt) % cycleDuration;
+    let stepPosition = steps.length - 1;
+    let nextActiveIndex = -1;
+    let resolved = false;
+
+    for (let index = 0; index < steps.length; index += 1) {
+      if (elapsed < holdDuration) {
+        stepPosition = index;
+        nextActiveIndex = index;
+        resolved = true;
+        break;
+      }
+
+      elapsed -= holdDuration;
+      if (index === steps.length - 1) break;
+
+      if (elapsed < travelDuration) {
+        const linearProgress = elapsed / travelDuration;
+        const easedProgress = (1 - Math.cos(Math.PI * linearProgress)) / 2;
+        stepPosition = index + easedProgress;
+        resolved = true;
+        break;
+      }
+
+      elapsed -= travelDuration;
+    }
+
+    if (!resolved) stepPosition = steps.length - 1;
+    setProgress(stepPosition);
+    setActiveStep(nextActiveIndex);
+    animationFrame = window.requestAnimationFrame(renderJourney);
+  };
+
+  const startJourney = () => {
+    window.cancelAnimationFrame(animationFrame);
+    cycleStartedAt = 0;
+    refreshJourneyGeometry();
+    setProgress(0);
+    setActiveStep(0);
+    animationFrame = window.requestAnimationFrame(renderJourney);
+  };
+
+  const stopJourney = () => {
+    window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+  };
+
+  if (reduceMotion || doc.classList.contains("qa-mode")) {
+    refreshJourneyGeometry();
+    setProgress(0);
+    setActiveStep(0);
+    return;
+  }
+
+  if ("IntersectionObserver" in window) {
+    const journeyObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) startJourney();
+          else stopJourney();
+        });
+      },
+      { threshold: 0.22 },
+    );
+    journeyObserver.observe(journey);
+  } else {
+    startJourney();
+  }
+
+  window.addEventListener(
+    "resize",
+    () => {
+      refreshJourneyGeometry();
+      setProgress(lastStepPosition);
+    },
+    { passive: true },
+  );
+});
+
 if (hasFinePointer && !reduceMotion) {
   const cursorGlow = document.querySelector(".cursor-glow");
   let pointerX = window.innerWidth / 2;
