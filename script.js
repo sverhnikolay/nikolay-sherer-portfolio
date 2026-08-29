@@ -154,6 +154,69 @@ if ("IntersectionObserver" in window) {
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Looping AI-agent conversation demo.
+document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
+  const messages = [...chat.querySelectorAll("[data-chat-item]")];
+  const typing = chat.querySelector("[data-chat-typing]");
+  const bodyElement = chat.querySelector(".agent-chat-body");
+  let timers = [];
+  let started = false;
+
+  const clearTimers = () => {
+    timers.forEach((timer) => window.clearTimeout(timer));
+    timers = [];
+  };
+
+  const showMessage = (index) => {
+    messages[index]?.classList.add("is-visible");
+    requestAnimationFrame(() => {
+      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
+    });
+  };
+
+  const schedule = (callback, delay) => {
+    timers.push(window.setTimeout(callback, delay));
+  };
+
+  const playConversation = () => {
+    clearTimers();
+    messages.forEach((message) => message.classList.remove("is-visible"));
+    typing?.classList.remove("is-visible");
+    bodyElement.scrollTop = 0;
+
+    showMessage(0);
+    schedule(() => showMessage(1), 1600);
+    schedule(() => typing?.classList.add("is-visible"), 2550);
+    schedule(() => typing?.classList.remove("is-visible"), 3450);
+    schedule(() => showMessage(2), 3500);
+    schedule(() => showMessage(3), 5350);
+    schedule(() => typing?.classList.add("is-visible"), 6250);
+    schedule(() => typing?.classList.remove("is-visible"), 7100);
+    schedule(() => showMessage(4), 7150);
+    schedule(playConversation, 12200);
+  };
+
+  if (reduceMotion) {
+    messages.forEach((message) => message.classList.add("is-visible"));
+    return;
+  }
+
+  if ("IntersectionObserver" in window) {
+    const chatObserver = new IntersectionObserver(
+      (entries, observer) => {
+        if (!entries.some((entry) => entry.isIntersecting) || started) return;
+        started = true;
+        playConversation();
+        observer.disconnect();
+      },
+      { threshold: 0.3 },
+    );
+    chatObserver.observe(chat);
+  } else {
+    playConversation();
+  }
+});
+
 if (hasFinePointer && !reduceMotion) {
   const cursorGlow = document.querySelector(".cursor-glow");
   let pointerX = window.innerWidth / 2;
