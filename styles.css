@@ -1839,11 +1839,11 @@ svg {
   position: relative;
   display: grid;
   overflow: hidden;
-  grid-template-columns: minmax(0, 1.08fr) minmax(370px, 0.72fr);
-  gap: 70px;
+  grid-template-columns: minmax(0, 1fr) minmax(480px, 0.92fr);
+  gap: 58px;
   align-items: center;
-  min-height: 690px;
-  padding: 70px;
+  min-height: 850px;
+  padding: 68px 64px;
   border: 1px solid var(--line);
   border-radius: 24px;
   background:
@@ -1871,7 +1871,7 @@ svg {
 .agent-demo-copy h2 {
   max-width: 690px;
   margin: 0;
-  font-size: clamp(42px, 4.2vw, 66px);
+  font-size: clamp(48px, 4.4vw, 72px);
   font-weight: 680;
   line-height: 1.02;
   letter-spacing: -0.055em;
@@ -1886,8 +1886,8 @@ svg {
   max-width: 630px;
   margin: 28px 0 0;
   color: #aaa6a3;
-  font-size: 16px;
-  line-height: 1.75;
+  font-size: 18px;
+  line-height: 1.7;
 }
 
 .agent-benefits {
@@ -1917,14 +1917,14 @@ svg {
 .agent-benefits b {
   margin-bottom: 7px;
   color: #f4f1ef;
-  font-size: 16px;
+  font-size: 19px;
   letter-spacing: -0.025em;
 }
 
 .agent-benefits span {
-  color: #777371;
-  font-size: 11px;
-  line-height: 1.45;
+  color: #918d8a;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .agent-chat-stage {
@@ -1939,8 +1939,8 @@ svg {
   z-index: -1;
   top: 50%;
   left: 50%;
-  width: 440px;
-  height: 440px;
+  width: 540px;
+  height: 540px;
   border-radius: 50%;
   content: "";
   background: rgba(184, 17, 24, 0.18);
@@ -1949,7 +1949,7 @@ svg {
 }
 
 .agent-chat-window {
-  width: min(100%, 405px);
+  width: min(100%, 500px);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 18px;
@@ -1959,19 +1959,19 @@ svg {
 
 .agent-chat-header {
   display: grid;
-  grid-template-columns: 42px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 48px 1fr auto;
+  gap: 14px;
   align-items: center;
-  min-height: 73px;
-  padding: 13px 15px;
+  min-height: 84px;
+  padding: 15px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.025);
 }
 
 .agent-chat-avatar {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   border: 1px solid rgba(255, 53, 61, 0.26);
   border-radius: 12px;
   color: var(--red);
@@ -1980,8 +1980,8 @@ svg {
 }
 
 .agent-chat-avatar svg {
-  width: 24px;
-  height: 24px;
+  width: 27px;
+  height: 27px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -1996,13 +1996,13 @@ svg {
 
 .agent-chat-header b {
   color: #eeecea;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .agent-chat-header small {
   margin-top: 3px;
   color: #83807d;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .agent-chat-header small i {
@@ -2017,25 +2017,32 @@ svg {
 
 .agent-chat-brand {
   color: #5e5b59;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.14em;
 }
 
 .agent-chat-body {
   display: flex;
-  height: 458px;
-  overflow: hidden;
+  height: 600px;
+  overflow-x: hidden;
+  overflow-y: auto;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px 16px;
+  gap: 0;
+  padding: 23px 19px;
+  scrollbar-width: none;
   background:
     radial-gradient(circle at 85% 12%, rgba(255, 53, 61, 0.055), transparent 30%),
     #0d0d0e;
 }
 
+.agent-chat-body::-webkit-scrollbar {
+  display: none;
+}
+
 .agent-message,
 .agent-typing {
+  display: none;
   opacity: 0;
   transform: translateY(10px) scale(0.985);
 }
@@ -2043,21 +2050,31 @@ svg {
 .agent-message {
   position: relative;
   max-width: 85%;
-  padding: 11px 13px 20px;
+  margin-top: 12px;
+  padding: 14px 16px 24px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 14px 14px 14px 4px;
   color: #d0cdca;
   background: #181819;
-  font-size: 11px;
-  line-height: 1.48;
-  transition: opacity 0.42s ease, transform 0.55s var(--ease);
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .agent-message.is-visible,
-.agent-typing.is-visible,
 .qa-mode .agent-message {
+  display: block;
   opacity: 1;
+  animation: agent-message-in 0.55s var(--ease) both;
   transform: translateY(0) scale(1);
+}
+
+.agent-message:first-child {
+  margin-top: 0;
+}
+
+@keyframes agent-message-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .agent-message--client {
@@ -2077,16 +2094,20 @@ svg {
   right: 9px;
   bottom: 5px;
   color: rgba(255, 255, 255, 0.36);
-  font-size: 7px;
+  font-size: 9px;
 }
 
 .agent-message--success {
-  display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: 34px 1fr;
   gap: 10px;
   align-items: center;
   border-color: rgba(94, 230, 138, 0.2);
   background: linear-gradient(135deg, rgba(94, 230, 138, 0.09), rgba(255, 255, 255, 0.025));
+}
+
+.agent-message--success.is-visible,
+.qa-mode .agent-message--success {
+  display: grid;
 }
 
 .agent-message--success span > b,
@@ -2095,38 +2116,45 @@ svg {
 }
 
 .agent-message--success span > small {
-  margin-top: 3px;
-  color: #8f8b88;
-  font-size: 9px;
+  margin-top: 5px;
+  color: #aaa6a3;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .agent-success-icon {
   display: grid;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   color: #07130b;
   background: var(--green);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 900;
   place-items: center;
 }
 
 .agent-typing {
-  display: flex;
   width: max-content;
   align-items: center;
   gap: 4px;
-  padding: 10px 13px;
+  margin-top: 12px;
+  padding: 12px 15px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 14px 14px 14px 4px;
   background: #181819;
-  transition: opacity 0.25s ease, transform 0.35s ease;
+}
+
+.agent-typing.is-visible {
+  display: flex;
+  opacity: 1;
+  animation: agent-message-in 0.35s ease both;
+  transform: translateY(0) scale(1);
 }
 
 .agent-typing i {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #777370;
   animation: agent-typing 0.9s ease-in-out infinite;
@@ -2144,18 +2172,18 @@ svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 58px;
-  padding: 9px 10px 9px 16px;
+  min-height: 68px;
+  padding: 10px 12px 10px 19px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: #605d5b;
   background: #111112;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .agent-chat-footer button {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 11px;
   color: #fff;
@@ -2165,8 +2193,8 @@ svg {
 }
 
 .agent-chat-footer svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -2180,7 +2208,7 @@ svg {
   gap: 8px;
   margin-top: 17px;
   color: #716e6c;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 
@@ -4293,9 +4321,9 @@ svg {
   }
 
   .agent-demo-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(350px, 0.82fr);
-    gap: 42px;
-    padding: 52px;
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.95fr);
+    gap: 36px;
+    padding: 48px 44px;
   }
 
   .case-visual {
@@ -4728,7 +4756,7 @@ svg {
   }
 
   .agent-chat-window {
-    width: min(100%, 430px);
+    width: min(100%, 500px);
   }
 
   .case-card {
@@ -4994,7 +5022,8 @@ svg {
 
   .agent-demo-copy > p {
     margin-top: 22px;
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 1.65;
   }
 
   .agent-benefits {
@@ -5013,8 +5042,23 @@ svg {
     border-top: 0;
   }
 
+  .agent-benefits b {
+    font-size: 18px;
+  }
+
+  .agent-benefits span {
+    font-size: 13px;
+  }
+
   .agent-chat-header {
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 44px 1fr;
+    min-height: 78px;
+    padding: 13px 14px;
+  }
+
+  .agent-chat-avatar {
+    width: 44px;
+    height: 44px;
   }
 
   .agent-chat-brand {
@@ -5022,13 +5066,14 @@ svg {
   }
 
   .agent-chat-body {
-    height: 450px;
-    padding: 16px 12px;
+    height: 560px;
+    padding: 18px 13px;
   }
 
   .agent-message {
-    max-width: 91%;
-    font-size: 10px;
+    max-width: 93%;
+    padding: 13px 14px 23px;
+    font-size: 13px;
   }
 
   .hero-portrait {

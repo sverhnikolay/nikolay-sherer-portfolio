@@ -174,6 +174,17 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
     });
   };
 
+  const showTyping = () => {
+    if (!typing) return;
+    bodyElement.append(typing);
+    typing.classList.add("is-visible");
+    requestAnimationFrame(() => {
+      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
+    });
+  };
+
+  const hideTyping = () => typing?.classList.remove("is-visible");
+
   const schedule = (callback, delay) => {
     timers.push(window.setTimeout(callback, delay));
   };
@@ -185,15 +196,27 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
     bodyElement.scrollTop = 0;
 
     showMessage(0);
-    schedule(() => showMessage(1), 1600);
-    schedule(() => typing?.classList.add("is-visible"), 2550);
-    schedule(() => typing?.classList.remove("is-visible"), 3450);
-    schedule(() => showMessage(2), 3500);
-    schedule(() => showMessage(3), 5350);
-    schedule(() => typing?.classList.add("is-visible"), 6250);
-    schedule(() => typing?.classList.remove("is-visible"), 7100);
-    schedule(() => showMessage(4), 7150);
-    schedule(playConversation, 12200);
+    schedule(() => showMessage(1), 1900);
+    schedule(showTyping, 3000);
+    schedule(hideTyping, 4150);
+    schedule(() => showMessage(2), 4200);
+    schedule(() => showMessage(3), 6200);
+    schedule(showTyping, 7300);
+    schedule(hideTyping, 8450);
+    schedule(() => showMessage(4), 8500);
+    schedule(() => showMessage(5), 10600);
+    schedule(showTyping, 11700);
+    schedule(hideTyping, 12950);
+    schedule(() => showMessage(6), 13000);
+    schedule(() => showMessage(7), 15150);
+    schedule(showTyping, 16250);
+    schedule(hideTyping, 17450);
+    schedule(() => showMessage(8), 17500);
+    schedule(() => showMessage(9), 19700);
+    schedule(showTyping, 20800);
+    schedule(hideTyping, 22150);
+    schedule(() => showMessage(10), 22200);
+    schedule(playConversation, 30000);
   };
 
   if (reduceMotion) {
