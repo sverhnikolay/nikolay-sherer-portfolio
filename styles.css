@@ -34,13 +34,13 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
   color: var(--text);
-  background:
-    radial-gradient(circle at 92% 1%, rgba(136, 10, 15, 0.12), transparent 30rem),
-    linear-gradient(180deg, #080808 0%, #090909 52%, #070707 100%);
+  background: #070708;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -87,6 +87,168 @@ svg {
   scroll-margin-top: 92px;
 }
 
+main,
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
+.site-atmosphere {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 58% at 50% -18%, rgba(255, 255, 255, 0.045), transparent 62%),
+    radial-gradient(circle at 86% 8%, rgba(111, 8, 16, 0.14), transparent 30rem),
+    linear-gradient(180deg, #080809 0%, #09090a 48%, #060607 100%);
+}
+
+.site-atmosphere::before,
+.site-atmosphere::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.site-atmosphere::before {
+  z-index: 7;
+  opacity: 0.75;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.42), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.42)),
+    linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.36));
+}
+
+.site-atmosphere::after {
+  z-index: 8;
+  box-shadow: inset 0 0 170px rgba(0, 0, 0, 0.7);
+}
+
+.atmosphere-grid,
+.atmosphere-sparks,
+.atmosphere-orb,
+.atmosphere-beam {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.atmosphere-grid {
+  z-index: 1;
+  right: -18%;
+  bottom: -34%;
+  left: -18%;
+  height: 92%;
+  opacity: 0.26;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.052) 1px, transparent 1px);
+  background-position: center bottom;
+  background-size: 76px 76px;
+  mask-image: linear-gradient(to bottom, transparent 3%, #000 48%, rgba(0, 0, 0, 0.9) 100%);
+  transform: perspective(900px) rotateX(63deg) scale(1.28);
+  transform-origin: center bottom;
+  animation: atmosphere-grid-drift 22s linear infinite;
+}
+
+.atmosphere-sparks {
+  z-index: 2;
+  inset: 0;
+  opacity: 0.22;
+  background-image:
+    radial-gradient(circle at 8% 17%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 31% 71%, rgba(255, 70, 77, 0.72) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 63% 26%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 86% 63%, rgba(255, 71, 79, 0.62) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 49% 91%, rgba(255, 255, 255, 0.48) 0 1px, transparent 1.4px);
+  background-size: 510px 430px, 610px 540px, 470px 590px, 670px 460px, 560px 620px;
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 84%, transparent);
+  animation: atmosphere-sparks-pulse 8s ease-in-out infinite alternate;
+}
+
+.atmosphere-orb {
+  z-index: 3;
+  border-radius: 50%;
+  filter: blur(86px);
+  will-change: transform, opacity;
+}
+
+.atmosphere-orb--one {
+  top: -28%;
+  right: -19%;
+  width: 760px;
+  height: 760px;
+  opacity: 0.25;
+  background: radial-gradient(circle, rgba(210, 23, 34, 0.62), rgba(119, 7, 16, 0.23) 42%, transparent 72%);
+  animation: atmosphere-orb-one 18s ease-in-out infinite alternate;
+}
+
+.atmosphere-orb--two {
+  bottom: -38%;
+  left: -22%;
+  width: 850px;
+  height: 850px;
+  opacity: 0.17;
+  background: radial-gradient(circle, rgba(166, 13, 25, 0.48), rgba(90, 6, 13, 0.15) 48%, transparent 72%);
+  animation: atmosphere-orb-two 24s ease-in-out infinite alternate;
+}
+
+.atmosphere-beam {
+  z-index: 4;
+  width: 66vw;
+  height: 110px;
+  opacity: 0.38;
+  background: linear-gradient(90deg, transparent, rgba(255, 58, 67, 0.075), rgba(255, 255, 255, 0.025), transparent);
+  filter: blur(22px);
+  will-change: transform, opacity;
+}
+
+.atmosphere-beam--one {
+  top: 15%;
+  right: -22%;
+  transform: rotate(-18deg);
+  animation: atmosphere-beam-one 15s ease-in-out infinite alternate;
+}
+
+.atmosphere-beam--two {
+  bottom: 4%;
+  left: -26%;
+  opacity: 0.25;
+  transform: rotate(21deg);
+  animation: atmosphere-beam-two 19s ease-in-out infinite alternate;
+}
+
+@keyframes atmosphere-grid-drift {
+  from { background-position: center 0; }
+  to { background-position: center 76px; }
+}
+
+@keyframes atmosphere-sparks-pulse {
+  from { opacity: 0.14; transform: translate3d(0, 0, 0); }
+  to { opacity: 0.3; transform: translate3d(0, -8px, 0); }
+}
+
+@keyframes atmosphere-orb-one {
+  from { opacity: 0.2; transform: translate3d(0, 0, 0) scale(0.96); }
+  to { opacity: 0.3; transform: translate3d(-7vw, 8vh, 0) scale(1.08); }
+}
+
+@keyframes atmosphere-orb-two {
+  from { opacity: 0.12; transform: translate3d(0, 0, 0) scale(0.94); }
+  to { opacity: 0.21; transform: translate3d(9vw, -7vh, 0) scale(1.07); }
+}
+
+@keyframes atmosphere-beam-one {
+  from { opacity: 0.24; transform: translate3d(0, -20px, 0) rotate(-18deg); }
+  to { opacity: 0.46; transform: translate3d(-10vw, 36px, 0) rotate(-18deg); }
+}
+
+@keyframes atmosphere-beam-two {
+  from { opacity: 0.16; transform: translate3d(0, 20px, 0) rotate(21deg); }
+  to { opacity: 0.32; transform: translate3d(12vw, -28px, 0) rotate(21deg); }
+}
+
 .noise {
   position: fixed;
   z-index: 1000;
@@ -98,7 +260,7 @@ svg {
 
 .cursor-glow {
   position: fixed;
-  z-index: -1;
+  z-index: 1;
   width: 600px;
   height: 600px;
   border-radius: 50%;
@@ -5184,6 +5346,56 @@ svg {
 
   .footer-bottom {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-atmosphere::after {
+    box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.68);
+  }
+
+  .atmosphere-grid {
+    right: -52%;
+    bottom: -18%;
+    left: -52%;
+    height: 70%;
+    opacity: 0.18;
+    background-size: 58px 58px;
+    animation-duration: 28s;
+  }
+
+  .atmosphere-sparks {
+    opacity: 0.14;
+    background-size: 390px 360px, 430px 410px, 370px 450px, 460px 390px, 410px 470px;
+  }
+
+  .atmosphere-orb {
+    filter: blur(62px);
+  }
+
+  .atmosphere-orb--one {
+    top: -16%;
+    right: -62%;
+    width: 520px;
+    height: 520px;
+  }
+
+  .atmosphere-orb--two {
+    bottom: -20%;
+    left: -72%;
+    width: 560px;
+    height: 560px;
+  }
+
+  .atmosphere-beam--one {
+    top: 27%;
+    width: 110vw;
+    opacity: 0.22;
+  }
+
+  .atmosphere-beam--two,
+  .cursor-glow {
+    display: none;
   }
 }
 
