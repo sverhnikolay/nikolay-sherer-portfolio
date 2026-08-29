@@ -1842,7 +1842,7 @@ svg {
   grid-template-columns: minmax(0, 1fr) minmax(480px, 0.92fr);
   gap: 58px;
   align-items: center;
-  min-height: 850px;
+  min-height: 720px;
   padding: 68px 64px;
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -2024,7 +2024,7 @@ svg {
 
 .agent-chat-body {
   display: flex;
-  height: 600px;
+  height: 316px;
   overflow-x: hidden;
   overflow-y: auto;
   flex-direction: column;
@@ -5066,7 +5066,7 @@ svg {
   }
 
   .agent-chat-body {
-    height: 560px;
+    height: 400px;
     padding: 18px 13px;
   }
 
