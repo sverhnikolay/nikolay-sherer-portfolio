@@ -33,7 +33,6 @@ if ("IntersectionObserver" in window) {
 }
 
 // Scroll progress and a calm hide/reveal header pattern.
-let previousScroll = window.scrollY;
 let scrollTicking = false;
 
 function updateScrollUI() {
@@ -43,12 +42,7 @@ function updateScrollUI() {
 
   progress.style.width = `${percentage}%`;
 
-  if (!body.classList.contains("menu-open")) {
-    const goingDown = currentScroll > previousScroll;
-    header.classList.toggle("is-hidden", goingDown && currentScroll > 240);
-  }
-
-  previousScroll = currentScroll;
+  header.classList.remove("is-hidden");
   scrollTicking = false;
 }
 
@@ -96,23 +90,21 @@ const linkedSections = navLinks
   .map((link) => document.querySelector(link.getAttribute("href")))
   .filter(Boolean);
 
-if ("IntersectionObserver" in window) {
-  const sectionObserver = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+const updateCurrentSection = () => {
+  const marker = window.innerHeight * 0.34;
+  const currentSection = linkedSections.find((section) => {
+    const rect = section.getBoundingClientRect();
+    return rect.top <= marker && rect.bottom > marker;
+  });
 
-      if (!visible) return;
-      navLinks.forEach((link) => {
-        link.classList.toggle("active", link.getAttribute("href") === `#${visible.target.id}`);
-      });
-    },
-    { rootMargin: "-25% 0px -60% 0px", threshold: [0, 0.1, 0.3] },
-  );
+  if (!currentSection) return;
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${currentSection.id}`);
+  });
+};
 
-  linkedSections.forEach((section) => sectionObserver.observe(section));
-}
+window.addEventListener("scroll", updateCurrentSection, { passive: true });
+updateCurrentSection();
 
 // Animated numbers.
 const counters = document.querySelectorAll("[data-counter]");
@@ -250,6 +242,7 @@ document.querySelectorAll(".journey").forEach((journey) => {
   let cycleStartedAt = 0;
   let activeIndex = -2;
   let nodePositions = [];
+  let nodeHitRadii = [];
   let lastStepPosition = 0;
 
   const setActiveStep = (index) => {
@@ -267,6 +260,7 @@ document.querySelectorAll(".journey").forEach((journey) => {
         ? nodeRect.top + nodeRect.height / 2 - journeyRect.top
         : nodeRect.left + nodeRect.width / 2;
     });
+    nodeHitRadii = steps.map((step) => step.querySelector(".journey-node").getBoundingClientRect().width / 2);
 
     if (verticalJourney) {
       const lineStart = centers[0];
@@ -290,14 +284,17 @@ document.querySelectorAll(".journey").forEach((journey) => {
     const fraction = stepPosition - lowerIndex;
     const pointPosition = nodePositions[lowerIndex] + (nodePositions[upperIndex] - nodePositions[lowerIndex]) * fraction;
     journey.style.setProperty("--journey-progress", `${pointPosition}px`);
+    return pointPosition;
   };
 
   const renderJourney = (now) => {
     if (!cycleStartedAt) cycleStartedAt = now;
     const cycleProgress = ((now - cycleStartedAt) % cycleDuration) / cycleDuration;
     const stepPosition = cycleProgress * (steps.length - 1);
-    const nextActiveIndex = Math.round(stepPosition);
-    setProgress(stepPosition);
+    const pointPosition = setProgress(stepPosition);
+    const nextActiveIndex = nodePositions.findIndex(
+      (nodePosition, index) => Math.abs(nodePosition - pointPosition) <= nodeHitRadii[index],
+    );
     setActiveStep(nextActiveIndex);
     animationFrame = window.requestAnimationFrame(renderJourney);
   };
@@ -346,6 +343,42 @@ document.querySelectorAll(".journey").forEach((journey) => {
     },
     { passive: true },
   );
+});
+
+// Lightweight project estimate: transparent starting point, not a binding quote.
+document.querySelectorAll("[data-cost-calculator]").forEach((calculator) => {
+  const range = calculator.querySelector("#calc-blocks");
+  const blockCount = calculator.querySelector("[data-block-count]");
+  const total = calculator.querySelector("[data-calc-total]");
+  const link = calculator.querySelector("[data-calc-link]");
+  const options = [...calculator.querySelectorAll("[data-calc-option]")];
+  const formatPrice = new Intl.NumberFormat("ru-RU").format;
+
+  const updateEstimate = () => {
+    const blocks = Number(range.value);
+    const optionTotal = options.reduce(
+      (sum, option) => sum + (option.checked ? Number(option.dataset.price) : 0),
+      0,
+    );
+    const estimatedPrice = 4900 + Math.max(0, blocks - 3) * 2700 + optionTotal;
+    const progressValue = ((blocks - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
+    const chosenOptions = options.filter((option) => option.checked).map((option) => option.value);
+    const message = [
+      "Здравствуйте! Хочу уточнить стоимость проекта.",
+      `Блоков: ${blocks}.`,
+      chosenOptions.length ? `Дополнительно: ${chosenOptions.join(", ")}.` : "Без дополнительных опций.",
+      `Предварительная оценка на сайте: от ${formatPrice(estimatedPrice)} ₽.`,
+    ].join(" ");
+
+    blockCount.textContent = String(blocks);
+    total.textContent = `от ${formatPrice(estimatedPrice)} ₽`;
+    range.style.setProperty("--range-progress", `${progressValue}%`);
+    link.href = `https://t.me/sh3r3r?text=${encodeURIComponent(message)}`;
+  };
+
+  range.addEventListener("input", updateEstimate);
+  options.forEach((option) => option.addEventListener("change", updateEstimate));
+  updateEstimate();
 });
 
 if (hasFinePointer && !reduceMotion) {
