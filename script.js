@@ -151,64 +151,103 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
   const messages = [...chat.querySelectorAll("[data-chat-item]")];
   const typing = chat.querySelector("[data-chat-typing]");
   const bodyElement = chat.querySelector(".agent-chat-body");
-  let timers = [];
+  const messageBlueprints = messages.map((message) => message.innerHTML);
   let started = false;
+  let conversationRun = 0;
 
-  const clearTimers = () => {
-    timers.forEach((timer) => window.clearTimeout(timer));
-    timers = [];
+  const pause = (delay) => new Promise((resolve) => window.setTimeout(resolve, delay));
+
+  const scrollConversation = () => {
+    requestAnimationFrame(() => {
+      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
+    });
   };
 
   const showMessage = (index) => {
     messages[index]?.classList.add("is-visible");
-    requestAnimationFrame(() => {
-      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
-    });
+    scrollConversation();
   };
 
   const showTyping = () => {
     if (!typing) return;
     bodyElement.append(typing);
     typing.classList.add("is-visible");
-    requestAnimationFrame(() => {
-      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
-    });
+    scrollConversation();
   };
 
   const hideTyping = () => typing?.classList.remove("is-visible");
 
-  const schedule = (callback, delay) => {
-    timers.push(window.setTimeout(callback, delay));
-  };
-
-  const playConversation = () => {
-    clearTimers();
-    messages.forEach((message) => message.classList.remove("is-visible"));
+  const resetConversation = () => {
+    messages.forEach((message, index) => {
+      message.innerHTML = messageBlueprints[index];
+      message.classList.remove("is-visible", "is-typing-message");
+    });
     typing?.classList.remove("is-visible");
     bodyElement.scrollTop = 0;
+  };
 
-    showMessage(0);
-    schedule(() => showMessage(1), 1900);
-    schedule(showTyping, 3000);
-    schedule(hideTyping, 4150);
-    schedule(() => showMessage(2), 4200);
-    schedule(() => showMessage(3), 6200);
-    schedule(showTyping, 7300);
-    schedule(hideTyping, 8450);
-    schedule(() => showMessage(4), 8500);
-    schedule(() => showMessage(5), 10600);
-    schedule(showTyping, 11700);
-    schedule(hideTyping, 12950);
-    schedule(() => showMessage(6), 13000);
-    schedule(() => showMessage(7), 15150);
-    schedule(showTyping, 16250);
-    schedule(hideTyping, 17450);
-    schedule(() => showMessage(8), 17500);
-    schedule(() => showMessage(9), 19700);
-    schedule(showTyping, 20800);
-    schedule(hideTyping, 22150);
-    schedule(() => showMessage(10), 22200);
-    schedule(playConversation, 30000);
+  const typeBotMessage = async (index, runId) => {
+    const message = messages[index];
+    if (!message || runId !== conversationRun) return;
+
+    const walker = document.createTreeWalker(message, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => {
+        const parent = node.parentElement;
+        if (!node.nodeValue?.trim() || !parent || parent.closest("time, .agent-success-icon")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push({ node: walker.currentNode, text: walker.currentNode.nodeValue });
+    textNodes.forEach(({ node }) => { node.nodeValue = ""; });
+
+    message.classList.add("is-visible", "is-typing-message");
+    scrollConversation();
+
+    for (const { node, text } of textNodes) {
+      for (const character of text) {
+        if (runId !== conversationRun) return;
+        node.nodeValue += character;
+        if (character.trim()) scrollConversation();
+        const delay = /[.!?—,:]/.test(character) ? 52 : character === " " ? 10 : 21;
+        await pause(delay);
+      }
+    }
+
+    message.classList.remove("is-typing-message");
+  };
+
+  const playConversation = async () => {
+    const runId = ++conversationRun;
+    resetConversation();
+
+    showTyping();
+    await pause(650);
+    hideTyping();
+    await typeBotMessage(0, runId);
+    await pause(750);
+    showMessage(1);
+
+    const turns = [[2, 3], [4, 5], [6, 7], [8, 9]];
+    for (const [botIndex, clientIndex] of turns) {
+      await pause(850);
+      showTyping();
+      await pause(650);
+      hideTyping();
+      await typeBotMessage(botIndex, runId);
+      await pause(750);
+      showMessage(clientIndex);
+    }
+
+    await pause(850);
+    showTyping();
+    await pause(700);
+    hideTyping();
+    await typeBotMessage(10, runId);
+    await pause(4500);
+    if (runId === conversationRun) playConversation();
   };
 
   if (reduceMotion) {
@@ -237,7 +276,9 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const steps = [...journey.querySelectorAll(".journey-step")];
   if (!steps.length) return;
 
-  const cycleDuration = 12000;
+  const holdDuration = 1500;
+  const travelDuration = 1300;
+  const cycleDuration = steps.length * holdDuration + (steps.length - 1) * travelDuration;
   let animationFrame = 0;
   let cycleStartedAt = 0;
   let activeIndex = -2;
@@ -289,8 +330,26 @@ document.querySelectorAll(".journey").forEach((journey) => {
 
   const renderJourney = (now) => {
     if (!cycleStartedAt) cycleStartedAt = now;
-    const cycleProgress = ((now - cycleStartedAt) % cycleDuration) / cycleDuration;
-    const stepPosition = cycleProgress * (steps.length - 1);
+    let elapsed = (now - cycleStartedAt) % cycleDuration;
+    let stepPosition = steps.length - 1;
+
+    for (let index = 0; index < steps.length; index += 1) {
+      if (elapsed < holdDuration) {
+        stepPosition = index;
+        break;
+      }
+
+      elapsed -= holdDuration;
+      if (index === steps.length - 1) break;
+
+      if (elapsed < travelDuration) {
+        stepPosition = index + elapsed / travelDuration;
+        break;
+      }
+
+      elapsed -= travelDuration;
+    }
+
     const pointPosition = setProgress(stepPosition);
     const nextActiveIndex = nodePositions.findIndex(
       (nodePosition, index) => Math.abs(nodePosition - pointPosition) <= nodeHitRadii[index],
@@ -352,20 +411,24 @@ document.querySelectorAll("[data-cost-calculator]").forEach((calculator) => {
   const total = calculator.querySelector("[data-calc-total]");
   const link = calculator.querySelector("[data-calc-link]");
   const options = [...calculator.querySelectorAll("[data-calc-option]")];
+  const designOptions = [...calculator.querySelectorAll("[data-calc-design]")];
   const formatPrice = new Intl.NumberFormat("ru-RU").format;
 
   const updateEstimate = () => {
     const blocks = Number(range.value);
+    const selectedDesign = designOptions.find((option) => option.checked);
+    const designPrice = Number(selectedDesign?.dataset.price || 0);
     const optionTotal = options.reduce(
       (sum, option) => sum + (option.checked ? Number(option.dataset.price) : 0),
       0,
     );
-    const estimatedPrice = 4900 + Math.max(0, blocks - 3) * 2700 + optionTotal;
+    const estimatedPrice = 4900 + Math.max(0, blocks - 5) * 2700 + designPrice + optionTotal;
     const progressValue = ((blocks - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
     const chosenOptions = options.filter((option) => option.checked).map((option) => option.value);
     const message = [
       "Здравствуйте! Хочу уточнить стоимость проекта.",
       `Блоков: ${blocks}.`,
+      `Дизайн: ${selectedDesign?.value || "Готовый дизайн"}.`,
       chosenOptions.length ? `Дополнительно: ${chosenOptions.join(", ")}.` : "Без дополнительных опций.",
       `Предварительная оценка на сайте: от ${formatPrice(estimatedPrice)} ₽.`,
     ].join(" ");
@@ -377,6 +440,7 @@ document.querySelectorAll("[data-cost-calculator]").forEach((calculator) => {
   };
 
   range.addEventListener("input", updateEstimate);
+  designOptions.forEach((option) => option.addEventListener("change", updateEstimate));
   options.forEach((option) => option.addEventListener("change", updateEstimate));
   updateEstimate();
 });
