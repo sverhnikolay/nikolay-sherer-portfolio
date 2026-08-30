@@ -3817,14 +3817,14 @@ main,
   transition-delay: 0.04s;
 }
 
-.journey-step:hover .journey-art--left,
+.journey-card-shell:hover .journey-art--left,
 .journey-step.is-active .journey-art--left {
   left: -34px;
   opacity: 1;
   transform: translateY(-50%) rotate(-13deg) scale(1);
 }
 
-.journey-step:hover .journey-art--right,
+.journey-card-shell:hover .journey-art--right,
 .journey-step.is-active .journey-art--right {
   right: -34px;
   opacity: 1;
@@ -3918,14 +3918,14 @@ main,
   letter-spacing: 0.05em;
 }
 
-.journey-step:hover .journey-card,
+.journey-card-shell:hover .journey-card,
 .journey-step.is-active .journey-card {
   border-color: rgba(255, 53, 61, 0.3);
   box-shadow: 0 30px 65px rgba(0, 0, 0, 0.34), 0 0 34px rgba(255, 53, 61, 0.055);
   transform: translateY(-5px);
 }
 
-.journey-step:hover .journey-node,
+.journey-step:has(.journey-card-shell:hover) .journey-node,
 .journey-step.is-active .journey-node {
   box-shadow: 0 0 0 8px rgba(10, 10, 11, 0.92), 0 0 34px rgba(255, 53, 61, 0.5);
   transform: scale(1.12);
@@ -4053,12 +4053,12 @@ main,
     height: 33px;
   }
 
-  .journey-step:hover .journey-art--left,
+  .journey-card-shell:hover .journey-art--left,
   .journey-step.is-active .journey-art--left {
     left: -25px;
   }
 
-  .journey-step:hover .journey-art--right,
+  .journey-card-shell:hover .journey-art--right,
   .journey-step.is-active .journey-art--right {
     right: -25px;
   }
@@ -5599,13 +5599,13 @@ main,
   right: 16px;
 }
 
-.journey-step:hover .journey-art--left,
+.journey-card-shell:hover .journey-art--left,
 .journey-step.is-active .journey-art--left {
   left: -58px;
   transform: translateY(-50%) rotate(-11deg) scale(1.08);
 }
 
-.journey-step:hover .journey-art--right,
+.journey-card-shell:hover .journey-art--right,
 .journey-step.is-active .journey-art--right {
   right: -58px;
   transform: translateY(-50%) rotate(11deg) scale(1.08);
@@ -5646,12 +5646,12 @@ main,
     height: 80px;
   }
 
-  .journey-step:hover .journey-art--left,
+  .journey-card-shell:hover .journey-art--left,
   .journey-step.is-active .journey-art--left {
     left: -42px;
   }
 
-  .journey-step:hover .journey-art--right,
+  .journey-card-shell:hover .journey-art--right,
   .journey-step.is-active .journey-art--right {
     right: -42px;
   }
@@ -5677,12 +5677,12 @@ main,
     height: 69px;
   }
 
-  .journey-step:hover .journey-art--left,
+  .journey-card-shell:hover .journey-art--left,
   .journey-step.is-active .journey-art--left {
     left: -34px;
   }
 
-  .journey-step:hover .journey-art--right,
+  .journey-card-shell:hover .journey-art--right,
   .journey-step.is-active .journey-art--right {
     right: -34px;
   }
@@ -5818,14 +5818,14 @@ main > .section:not(.hero) {
     #151516;
 }
 
-.journey-step:hover .journey-art--left,
+.journey-card-shell:hover .journey-art--left,
 .journey-step.is-active .journey-art--left {
   left: -108px;
   opacity: 1;
   transform: translateY(-50%) rotate(-11deg) scale(1.12);
 }
 
-.journey-step:hover .journey-art--right,
+.journey-card-shell:hover .journey-art--right,
 .journey-step.is-active .journey-art--right {
   right: -108px;
   opacity: 1;
@@ -6454,12 +6454,12 @@ main > .section:not(.hero) {
     font-size: 11px;
   }
 
-  .journey-step:hover .journey-art--left,
+  .journey-card-shell:hover .journey-art--left,
   .journey-step.is-active .journey-art--left {
     left: -78px;
   }
 
-  .journey-step:hover .journey-art--right,
+  .journey-card-shell:hover .journey-art--right,
   .journey-step.is-active .journey-art--right {
     right: -78px;
   }
@@ -6553,12 +6553,12 @@ main > .section:not(.hero) {
     width: 100%;
   }
 
-  .journey-step:hover .journey-art--left,
+  .journey-card-shell:hover .journey-art--left,
   .journey-step.is-active .journey-art--left {
     left: -57px;
   }
 
-  .journey-step:hover .journey-art--right,
+  .journey-card-shell:hover .journey-art--right,
   .journey-step.is-active .journey-art--right {
     right: -57px;
   }
@@ -6764,9 +6764,46 @@ main > .section:not(.hero) {
   justify-content: flex-end;
 }
 
+.desktop-nav {
+  gap: clamp(9px, 1vw, 16px);
+}
+
+.desktop-nav a {
+  font-size: 13px;
+}
+
+.faq-layout {
+  grid-template-columns: minmax(390px, 0.9fr) minmax(0, 1.1fr);
+  gap: 64px;
+}
+
+.faq-title-line {
+  white-space: nowrap;
+}
+
 @media (max-width: 1120px) {
+  .desktop-nav {
+    gap: 8px;
+  }
+
+  .desktop-nav a {
+    font-size: 12px;
+  }
+
   .service-card {
     min-height: 285px;
+  }
+
+  .faq-layout {
+    grid-template-columns: minmax(360px, 0.86fr) minmax(0, 1.14fr);
+    gap: 54px;
+  }
+}
+
+@media (max-width: 900px) {
+  .faq-layout {
+    grid-template-columns: 1fr;
+    gap: 48px;
   }
 }
 
