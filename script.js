@@ -245,10 +245,7 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const steps = [...journey.querySelectorAll(".journey-step")];
   if (!steps.length) return;
 
-  const holdDuration = 1400;
-  const travelDuration = 900;
-  const endPause = 900;
-  const cycleDuration = steps.length * holdDuration + (steps.length - 1) * travelDuration + endPause;
+  const cycleDuration = 12000;
   let animationFrame = 0;
   let cycleStartedAt = 0;
   let activeIndex = -2;
@@ -297,34 +294,9 @@ document.querySelectorAll(".journey").forEach((journey) => {
 
   const renderJourney = (now) => {
     if (!cycleStartedAt) cycleStartedAt = now;
-    let elapsed = (now - cycleStartedAt) % cycleDuration;
-    let stepPosition = steps.length - 1;
-    let nextActiveIndex = -1;
-    let resolved = false;
-
-    for (let index = 0; index < steps.length; index += 1) {
-      if (elapsed < holdDuration) {
-        stepPosition = index;
-        nextActiveIndex = index;
-        resolved = true;
-        break;
-      }
-
-      elapsed -= holdDuration;
-      if (index === steps.length - 1) break;
-
-      if (elapsed < travelDuration) {
-        const linearProgress = elapsed / travelDuration;
-        const easedProgress = (1 - Math.cos(Math.PI * linearProgress)) / 2;
-        stepPosition = index + easedProgress;
-        resolved = true;
-        break;
-      }
-
-      elapsed -= travelDuration;
-    }
-
-    if (!resolved) stepPosition = steps.length - 1;
+    const cycleProgress = ((now - cycleStartedAt) % cycleDuration) / cycleDuration;
+    const stepPosition = cycleProgress * (steps.length - 1);
+    const nextActiveIndex = Math.round(stepPosition);
     setProgress(stepPosition);
     setActiveStep(nextActiveIndex);
     animationFrame = window.requestAnimationFrame(renderJourney);

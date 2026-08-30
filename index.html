@@ -19,8 +19,8 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M22 27v46M22 50h24M46 27v46M61 27v46M61 50h17V27M78 50v23%22 fill=%22none%22 stroke=%22%23ff353d%22 stroke-width=%228%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>"
     />
-    <link rel="stylesheet" href="styles.css?v=20260829-5" />
-    <script src="script.js?v=20260829-5" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260830-1" />
+    <script src="script.js?v=20260830-1" defer></script>
   </head>
 
   <body>
@@ -38,15 +38,15 @@
 
     <header class="site-header" data-header>
       <div class="nav-shell container">
-        <a class="brand" href="#top" aria-label="На главную">
-          <span class="brand-copy">
-            <b>Николай Шерер</b>
-          </span>
+        <a class="brand" href="#about" aria-label="О Николае Шерере">
+          <img class="brand-logo" src="assets/sherer-logo.png" alt="Sherer" />
         </a>
 
         <nav class="desktop-nav" aria-label="Основная навигация">
-          <a href="#services">Услуги</a>
-          <a href="#cases">Кейсы</a>
+          <a href="#about">Обо мне</a>
+          <a href="#services">Что делаю</a>
+          <a href="#agent-demo">AI-агент</a>
+          <a href="#cases">Портфолио</a>
           <a href="#process">Процесс</a>
           <a href="#guarantees">Гарантии</a>
         </nav>
@@ -70,8 +70,10 @@
 
       <div class="mobile-menu" aria-hidden="true">
         <nav aria-label="Мобильная навигация">
-          <a href="#services">Услуги</a>
-          <a href="#cases">Кейсы</a>
+          <a href="#about">Обо мне</a>
+          <a href="#services">Что делаю</a>
+          <a href="#agent-demo">AI-агент</a>
+          <a href="#cases">Портфолио</a>
           <a href="#process">Процесс</a>
           <a href="#guarantees">Гарантии</a>
         </nav>
@@ -83,7 +85,7 @@
     </header>
 
     <main id="top">
-      <section class="hero section" aria-labelledby="hero-title">
+      <section class="hero section" id="about" aria-labelledby="hero-title">
         <div class="hero-orb hero-orb--one" aria-hidden="true"></div>
         <div class="hero-orb hero-orb--two" aria-hidden="true"></div>
 
@@ -91,12 +93,11 @@
           <div class="hero-copy">
             <div class="eyebrow hero-eyebrow reveal">
               <span class="status-dot"></span>
-              Открыт к новым проектам
+              Разработка сайтов и AI-автоматизаций
             </div>
 
             <h1 id="hero-title" class="reveal" style="--delay: 0.08s">
-              Не просто сайт.<br />
-              <span>Система роста</span><br />
+              Создаю <span>систему роста</span><br />
               для вашего бизнеса
             </h1>
 
@@ -148,7 +149,7 @@
 
         <div class="container hero-metrics reveal" style="--delay: 0.38s">
           <div><strong>30+</strong><span>реализованных<br />проектов</span></div>
-          <div><strong>от 5 дней</strong><span>срок запуска<br />лендинга</span></div>
+          <div><strong>3–5 дней</strong><span>срок запуска<br />лендинга</span></div>
           <div><strong>24/7</strong><span>поддержка<br />после запуска</span></div>
           <div><strong>Договор</strong><span>официально,<br />с гарантиями</span></div>
         </div>
@@ -175,10 +176,9 @@
         <div class="container">
           <div class="section-heading reveal">
             <div>
-              <span class="section-kicker">УСЛУГИ</span>
+              <span class="section-kicker">ЧТО ДЕЛАЮ</span>
               <h2 id="services-title">Собираю решение<br /><em>вокруг вашей цели</em></h2>
             </div>
-            <p>От точечного инструмента до полноценной цифровой экосистемы бизнеса.</p>
           </div>
 
           <div class="service-grid">
@@ -320,64 +320,45 @@
         <div class="container">
           <div class="section-heading section-heading--cases reveal">
             <div>
-              <span class="section-kicker">ВИТРИНА ПРОЕКТОВ</span>
-              <h2 id="cases-title">Работы, которые<br /><em>говорят за меня</em></h2>
+              <span class="section-kicker">ПОРТФОЛИО</span>
+              <h2 id="cases-title">Сайты, которые<br /><em>приносят заявки</em></h2>
             </div>
-            <p>Четыре цифровых продукта с разным характером — от атмосферных лендингов до сервисов для бизнеса.</p>
-          </div>
-
-          <div class="showcase-line reveal" aria-hidden="true">
-            <span>Selected works / 2026</span>
-            <i></i>
-            <span>04 проекта</span>
           </div>
 
           <div class="showcase-grid">
             <article class="project-tile reveal">
-              <a class="project-preview" href="https://meridian-travel-club.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект «Меридиан»">
-                <img src="assets/meridian-travel-club.jpg" alt="Главный экран сайта клуба путешествий «Меридиан»" decoding="async" />
-                <span class="project-status"><i></i> Готовый проект</span>
-                <span class="project-open" aria-hidden="true">↗</span>
-              </a>
-              <div class="project-caption">
-                <div><span>Travel · Landing</span><h3>Меридиан</h3></div>
-                <p>Премиальная презентация клуба пеших походов по Швейцарии с атмосферным каталогом маршрутов.</p>
-              </div>
-            </article>
-
-            <article class="project-tile reveal" style="--delay: .08s">
-              <a class="project-preview" href="https://domenta-smart-home.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект Domenta">
-                <img src="assets/domenta-smart-home.jpg" alt="Главный экран сайта системы умного дома Domenta" decoding="async" />
-                <span class="project-status"><i></i> Готовый проект</span>
-                <span class="project-open" aria-hidden="true">↗</span>
-              </a>
-              <div class="project-caption">
-                <div><span>Smart home · Landing</span><h3>Domenta</h3></div>
-                <p>Интерактивный лендинг экосистемы умного дома с наглядной демонстрацией сценариев.</p>
-              </div>
-            </article>
-
-            <article class="project-tile reveal">
-              <a class="project-preview" href="https://sokolov-psy-demo.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект «Светло»">
-                <img src="assets/sokolov-psy-demo.jpg" alt="Главный экран сервиса онлайн-психотерапии «Светло»" decoding="async" />
-                <span class="project-status"><i></i> Готовый проект</span>
-                <span class="project-open" aria-hidden="true">↗</span>
-              </a>
-              <div class="project-caption">
-                <div><span>HealthTech · Platform</span><h3>Светло</h3></div>
-                <p>Сервис онлайн-психотерапии с понятным подбором специалиста и мягким пользовательским сценарием.</p>
-              </div>
-            </article>
-
-            <article class="project-tile reveal" style="--delay: .08s">
               <a class="project-preview" href="https://forma-fitness-landing.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект Forma Fitness">
-                <img src="assets/forma-fitness-landing.png" alt="Главный экран фитнес-лендинга Forma" loading="lazy" decoding="async" />
+                <img src="assets/forma-fitness-landing.png" alt="Главный экран фитнес-лендинга Forma" decoding="async" />
                 <span class="project-status"><i></i> Готовый проект</span>
                 <span class="project-open" aria-hidden="true">↗</span>
               </a>
               <div class="project-caption">
                 <div><span>Fitness · Landing</span><h3>Forma</h3></div>
-                <p>Энергичный лендинг фитнес-проекта с акцентом на понятный путь к записи и результату.</p>
+                <p>Энергичный лендинг фитнес-клуба с сильным оффером и понятным сценарием записи на тренировку.</p>
+              </div>
+            </article>
+
+            <article class="project-tile reveal" style="--delay: .08s">
+              <a class="project-preview" href="https://rostok-child-center-landing.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект детского центра «Росток»">
+                <img src="assets/rostok-child-center.png" alt="Главный экран сайта детского развивающего центра «Росток»" loading="lazy" decoding="async" />
+                <span class="project-status"><i></i> Готовый проект</span>
+                <span class="project-open" aria-hidden="true">↗</span>
+              </a>
+              <div class="project-caption">
+                <div><span>Education · Landing</span><h3>Росток</h3></div>
+                <p>Тёплый сайт детского центра с направлениями, расписанием и записью на пробное занятие.</p>
+              </div>
+            </article>
+
+            <article class="project-tile reveal" style="--delay: .16s">
+              <a class="project-preview" href="https://vetcare-clinic-landing.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Открыть проект VetCare">
+                <img src="assets/vetcare-clinic.png" alt="Главный экран сайта ветеринарной клиники VetCare" loading="lazy" decoding="async" />
+                <span class="project-status"><i></i> Готовый проект</span>
+                <span class="project-open" aria-hidden="true">↗</span>
+              </a>
+              <div class="project-caption">
+                <div><span>Veterinary · Landing</span><h3>VetCare</h3></div>
+                <p>Лендинг ветеринарной клиники с услугами, ценами и быстрым переходом к онлайн-записи.</p>
               </div>
             </article>
           </div>
@@ -392,7 +373,6 @@
               <span class="section-kicker">ПРОЦЕСС</span>
               <h2 id="process-title">От задачи<br /><em>до работающего продукта</em></h2>
             </div>
-            <p>Один понятный маршрут и шесть контрольных точек от первой задачи до запуска.</p>
           </div>
 
           <div class="journey reveal" aria-label="Маршрут работы над проектом из шести этапов">
@@ -400,8 +380,8 @@
 
             <article class="journey-step journey-step--top" style="--step-delay: .12s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="21" cy="21" r="11"/><path d="m29 29 10 10M17 21h8M21 17v8"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="m29 18-3 9-9 3 3-9 9-3Z"/><circle cx="24" cy="24" r="2"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--01" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--02" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Погружение</h3>
                   <p>Разбираюсь в бизнесе, аудитории, продукте и точках роста.</p>
@@ -412,8 +392,8 @@
 
             <article class="journey-step journey-step--bottom" style="--step-delay: .2s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="10" cy="35" r="4"/><circle cx="38" cy="12" r="4"/><path d="M14 34c8-1 5-12 13-12h7M30 17l4 5-5 4"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="10"/><circle cx="24" cy="24" r="3"/><path d="m34 14 7-7M35 7h6v6"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--03" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--04" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Стратегия</h3>
                   <p>Определяю логику решения, сценарии пользователей и приоритеты.</p>
@@ -424,8 +404,8 @@
 
             <article class="journey-step journey-step--top" style="--step-delay: .28s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="8" width="36" height="30" rx="4"/><path d="M6 16h36M13 12h.1M18 12h.1M12 22h11v10H12M28 22h8M28 27h8M28 32h5"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="m13 8 23 19-12 2-6 11-5-32Z"/><path d="m25 29 8 9"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--05" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--06" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Прототип</h3>
                   <p>Собираю структуру и проверяю ключевые пользовательские пути.</p>
@@ -436,8 +416,8 @@
 
             <article class="journey-step journey-step--bottom" style="--step-delay: .36s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="m33 7 8 8-20 20-10 3 3-10L33 7Z"/><path d="m29 11 8 8M14 28l7 7M11 38c-3 0-5 2-5 5 4 1 8-1 8-5"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6c-10 0-18 7-18 17 0 9 8 17 17 17h3c3 0 5-2 5-5 0-2-2-4-4-4h-2c-2 0-3-1-3-3 0-3 3-5 6-5h6c5 0 8-3 8-7C42 10 34 6 24 6Z"/><circle cx="14" cy="21" r="2"/><circle cx="19" cy="14" r="2"/><circle cx="28" cy="13" r="2"/><circle cx="35" cy="17" r="2"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--07" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--08" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Дизайн</h3>
                   <p>Создаю визуальную систему, которая поддерживает доверие и конверсию.</p>
@@ -448,8 +428,8 @@
 
             <article class="journey-step journey-step--top" style="--step-delay: .44s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="m18 11-12 13 12 13M30 11l12 13-12 13M28 6 20 42"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="7"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l5 5M32 32l5 5M37 11l-5 5M16 32l-5 5"/><circle cx="24" cy="24" r="15"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--09" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--10" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Разработка</h3>
                   <p>Собираю продукт, подключаю интеграции, аналитику и автоматизации.</p>
@@ -460,8 +440,8 @@
 
             <article class="journey-step journey-step--bottom" style="--step-delay: .52s">
               <div class="journey-card-shell">
-                <span class="journey-art journey-art--left" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M29 7c7 1 11 5 12 12L27 33l-12-2-2-12L29 7Z"/><circle cx="30" cy="18" r="4"/><path d="m15 31-6 6M18 35l-3 7M11 28l-6 3"/></svg></span>
-                <span class="journey-art journey-art--right" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M7 39h34M10 34l9-10 7 6 13-17"/><path d="M31 13h8v8"/><circle cx="10" cy="34" r="2"/><circle cx="19" cy="24" r="2"/><circle cx="26" cy="30" r="2"/></svg></span>
+                <span class="journey-art journey-art--left journey-art--11" aria-hidden="true"></span>
+                <span class="journey-art journey-art--right journey-art--12" aria-hidden="true"></span>
                 <div class="journey-card">
                   <h3>Запуск и рост</h3>
                   <p>Тестирую, запускаю, наблюдаю за метриками и улучшаю результат.</p>
@@ -477,10 +457,9 @@
         <div class="container">
           <div class="section-heading reveal">
             <div>
-              <span class="section-kicker">ПРИНЦИПЫ РАБОТЫ</span>
+              <span class="section-kicker">ГАРАНТИИ</span>
               <h2 id="guarantees-title">Спокойствие<br /><em>на каждом этапе</em></h2>
             </div>
-            <p>Проект движется по понятным правилам, а риски обсуждаются до того, как становятся проблемой.</p>
           </div>
 
           <div class="guarantee-grid">
@@ -533,7 +512,7 @@
           <span class="brand-copy"><b>Николай Шерер</b><small>Цифровые продукты для роста бизнеса</small></span>
         </a>
         <div class="footer-nav">
-          <a href="#services">Услуги</a><a href="#cases">Кейсы</a><a href="#process">Процесс</a><a href="#guarantees">Гарантии</a>
+          <a href="#about">Обо мне</a><a href="#services">Что делаю</a><a href="#agent-demo">AI-агент</a><a href="#cases">Портфолио</a>
         </div>
         <a class="footer-telegram" href="https://t.me/sherer_dev" target="_blank" rel="noopener noreferrer">
           <span>Telegram</span><b>@sherer_dev</b><i>↗</i>

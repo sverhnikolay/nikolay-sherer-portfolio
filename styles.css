@@ -5515,6 +5515,179 @@ main,
   }
 }
 
+/* August 30 refinement: compact services, three-work portfolio and PNG process art. */
+
+.brand-logo {
+  display: block;
+  width: clamp(112px, 9vw, 142px);
+  height: 35px;
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.08));
+}
+
+.service-card {
+  min-height: 320px;
+  padding: 32px 34px;
+}
+
+.service-card h3 {
+  margin-top: 28px;
+}
+
+.showcase-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.project-tile {
+  grid-column: auto;
+}
+
+.project-preview {
+  height: 300px;
+}
+
+.project-caption {
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 17px;
+  min-height: 228px;
+  padding: 27px 20px 30px;
+}
+
+.project-caption h3 {
+  font-size: clamp(28px, 2.25vw, 35px);
+}
+
+.journey-art {
+  width: 112px;
+  height: 100px;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: url("assets/process-icons.png");
+  background-repeat: no-repeat;
+  background-size: 400% 300%;
+  box-shadow: none;
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.52)) drop-shadow(0 0 14px rgba(255, 53, 61, 0.15));
+}
+
+.journey-art::before,
+.journey-art svg {
+  display: none;
+}
+
+.journey-art--01 { background-position: 0% 0%; }
+.journey-art--02 { background-position: 33.333% 0%; }
+.journey-art--03 { background-position: 66.666% 0%; }
+.journey-art--04 { background-position: 100% 0%; }
+.journey-art--05 { background-position: 0% 50%; }
+.journey-art--06 { background-position: 33.333% 50%; }
+.journey-art--07 { background-position: 66.666% 50%; }
+.journey-art--08 { background-position: 100% 50%; }
+.journey-art--09 { background-position: 0% 100%; }
+.journey-art--10 { background-position: 33.333% 100%; }
+.journey-art--11 { background-position: 66.666% 100%; }
+.journey-art--12 { background-position: 100% 100%; }
+
+.journey-art--left {
+  left: 16px;
+}
+
+.journey-art--right {
+  right: 16px;
+}
+
+.journey-step:hover .journey-art--left,
+.journey-step.is-active .journey-art--left {
+  left: -58px;
+  transform: translateY(-50%) rotate(-11deg) scale(1.08);
+}
+
+.journey-step:hover .journey-art--right,
+.journey-step.is-active .journey-art--right {
+  right: -58px;
+  transform: translateY(-50%) rotate(11deg) scale(1.08);
+}
+
+@media (max-width: 1120px) {
+  .brand-logo {
+    width: 112px;
+    height: 31px;
+  }
+
+  .service-card {
+    min-height: 310px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .project-preview {
+    height: min(55vw, 440px);
+  }
+
+  .project-caption {
+    min-height: 0;
+  }
+
+  .journey-step--top .journey-card,
+  .journey-step--bottom .journey-card {
+    overflow: visible;
+  }
+
+  .journey-art {
+    width: 90px;
+    height: 80px;
+  }
+
+  .journey-step:hover .journey-art--left,
+  .journey-step.is-active .journey-art--left {
+    left: -42px;
+  }
+
+  .journey-step:hover .journey-art--right,
+  .journey-step.is-active .journey-art--right {
+    right: -42px;
+  }
+}
+
+@media (max-width: 640px) {
+  .brand-logo {
+    width: 105px;
+    height: 29px;
+  }
+
+  .service-card {
+    min-height: 0;
+    padding: 28px 25px;
+  }
+
+  .project-preview {
+    height: min(69vw, 355px);
+  }
+
+  .journey-art {
+    width: 78px;
+    height: 69px;
+  }
+
+  .journey-step:hover .journey-art--left,
+  .journey-step.is-active .journey-art--left {
+    left: -34px;
+  }
+
+  .journey-step:hover .journey-art--right,
+  .journey-step.is-active .journey-art--right {
+    right: -34px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
