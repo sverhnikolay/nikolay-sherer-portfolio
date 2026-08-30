@@ -6165,7 +6165,9 @@ main > .section:not(.hero) {
 }
 
 .guarantee-card {
-  min-height: 250px;
+  min-height: 0;
+  align-items: start;
+  padding: 30px 34px;
   background: #121213;
 }
 
