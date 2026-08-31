@@ -426,7 +426,7 @@ document.querySelectorAll("[data-cost-calculator]").forEach((calculator) => {
     const progressValue = ((blocks - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
     const chosenOptions = options.filter((option) => option.checked).map((option) => option.value);
     const message = [
-      "Здравствуйте! Хочу уточнить стоимость проекта.",
+      "Здравствуйте, Николай. Хочу уточнить стоимость проекта.",
       `Блоков: ${blocks}.`,
       `Дизайн: ${selectedDesign?.value || "Готовый дизайн"}.`,
       chosenOptions.length ? `Дополнительно: ${chosenOptions.join(", ")}.` : "Без дополнительных опций.",
