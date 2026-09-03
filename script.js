@@ -276,11 +276,12 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const steps = [...journey.querySelectorAll(".journey-step")];
   if (!steps.length) return;
 
+  const firstHoldDuration = 1500;
   const finalHoldDuration = 1500;
   const travelDuration = 1300;
   const travelDistance = steps.length - 1;
   const totalTravelDuration = travelDistance * travelDuration;
-  const cycleDuration = totalTravelDuration + finalHoldDuration;
+  const cycleDuration = firstHoldDuration + totalTravelDuration + finalHoldDuration;
   let animationFrame = 0;
   let cycleStartedAt = 0;
   let activeIndex = -2;
@@ -333,9 +334,12 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const renderJourney = (now) => {
     if (!cycleStartedAt) cycleStartedAt = now;
     const elapsed = (now - cycleStartedAt) % cycleDuration;
-    const stepPosition = elapsed < totalTravelDuration
-      ? elapsed / travelDuration
-      : steps.length - 1;
+    const travelElapsed = elapsed - firstHoldDuration;
+    const stepPosition = elapsed < firstHoldDuration
+      ? 0
+      : travelElapsed < totalTravelDuration
+        ? travelElapsed / travelDuration
+        : steps.length - 1;
 
     const pointPosition = setProgress(stepPosition);
     const nextActiveIndex = nodePositions.findIndex(
@@ -389,47 +393,6 @@ document.querySelectorAll(".journey").forEach((journey) => {
     },
     { passive: true },
   );
-});
-
-// Lightweight project estimate: transparent starting point, not a binding quote.
-document.querySelectorAll("[data-cost-calculator]").forEach((calculator) => {
-  const range = calculator.querySelector("#calc-blocks");
-  const blockCount = calculator.querySelector("[data-block-count]");
-  const total = calculator.querySelector("[data-calc-total]");
-  const link = calculator.querySelector("[data-calc-link]");
-  const options = [...calculator.querySelectorAll("[data-calc-option]")];
-  const designOptions = [...calculator.querySelectorAll("[data-calc-design]")];
-  const formatPrice = new Intl.NumberFormat("ru-RU").format;
-
-  const updateEstimate = () => {
-    const blocks = Number(range.value);
-    const selectedDesign = designOptions.find((option) => option.checked);
-    const designPrice = Number(selectedDesign?.dataset.price || 0);
-    const optionTotal = options.reduce(
-      (sum, option) => sum + (option.checked ? Number(option.dataset.price) : 0),
-      0,
-    );
-    const estimatedPrice = 4900 + Math.max(0, blocks - 5) * 2700 + designPrice + optionTotal;
-    const progressValue = ((blocks - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
-    const chosenOptions = options.filter((option) => option.checked).map((option) => option.value);
-    const message = [
-      "Здравствуйте, Николай. Хочу уточнить стоимость проекта.",
-      `Блоков: ${blocks}.`,
-      `Дизайн: ${selectedDesign?.value || "Готовый дизайн"}.`,
-      chosenOptions.length ? `Дополнительно: ${chosenOptions.join(", ")}.` : "Без дополнительных опций.",
-      `Предварительная оценка на сайте: от ${formatPrice(estimatedPrice)} ₽.`,
-    ].join(" ");
-
-    blockCount.textContent = String(blocks);
-    total.textContent = `от ${formatPrice(estimatedPrice)} ₽`;
-    range.style.setProperty("--range-progress", `${progressValue}%`);
-    link.href = `https://t.me/sh3r3r?text=${encodeURIComponent(message)}`;
-  };
-
-  range.addEventListener("input", updateEstimate);
-  designOptions.forEach((option) => option.addEventListener("change", updateEstimate));
-  options.forEach((option) => option.addEventListener("change", updateEstimate));
-  updateEstimate();
 });
 
 if (hasFinePointer && !reduceMotion) {
