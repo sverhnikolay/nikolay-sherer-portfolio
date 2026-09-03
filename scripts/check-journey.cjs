@@ -12,23 +12,22 @@ async function main() {
         const point = document.querySelector('.journey-line span');
         const nodes = [...document.querySelectorAll('.journey-node')];
         const samples = [];
-        for (let i=0; i<105; i++) {
+        for (let i=0; i<165; i++) {
           const rect = point.getBoundingClientRect();
           const centers = nodes.map(node => {const r=node.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
-          const first = Math.hypot(rect.x+rect.width/2-centers[0].x,rect.y+rect.height/2-centers[0].y);
-          const last = Math.hypot(rect.x+rect.width/2-centers[5].x,rect.y+rect.height/2-centers[5].y);
-          samples.push({time:performance.now(),first,last,active:nodes.findIndex(node=>node.parentElement.classList.contains('is-active'))});
+          const distances = centers.map(center => Math.hypot(rect.x+rect.width/2-center.x,rect.y+rect.height/2-center.y));
+          samples.push({time:performance.now(),distances,active:nodes.findIndex(node=>node.parentElement.classList.contains('is-active'))});
           await new Promise(resolve=>setTimeout(resolve,100));
         }
         return samples;
       });
-      for (const endpoint of ['first','last']) {
-        const held = samples.filter(sample=>sample[endpoint]<2);
-        assert.ok(held.length>=12,`${width}: missing ${endpoint} hold or point/node misaligned`);
-        assert.ok(held.every(sample=>sample.active===(endpoint==='first'?0:5)));
+      const holds = samples.map(sample => sample.distances.findIndex(distance => distance < 2));
+      for (let index = 0; index < 6; index++) {
+        const held = samples.filter((sample, sampleIndex) => holds[sampleIndex] === index);
+        assert.ok(held.length >= 12, `${width}: missing hold on step ${index + 1}`);
+        assert.ok(held.every(sample => sample.active === index));
       }
-      assert.ok(samples.some(sample=>sample.active===2),'Intermediate stages still activate');
-      console.log(JSON.stringify({width,firstHoldSamples:samples.filter(s=>s.first<2).length,lastHoldSamples:samples.filter(s=>s.last<2).length,passed:true}));
+      console.log(JSON.stringify({width,perStep:samples.reduce((counts, sample, index) => { const hold = holds[index]; if (hold >= 0) counts[hold] += 1; return counts; }, [0,0,0,0,0,0]),passed:true}));
       await page.close();
     }
   } finally { await browser.close(); }

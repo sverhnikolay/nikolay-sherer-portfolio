@@ -321,12 +321,10 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const steps = [...journey.querySelectorAll(".journey-step")];
   if (!steps.length) return;
 
-  const firstHoldDuration = 1500;
-  const finalHoldDuration = 1500;
+  const nodeHoldDuration = 1500;
   const travelDuration = 1300;
   const travelDistance = steps.length - 1;
-  const totalTravelDuration = travelDistance * travelDuration;
-  const cycleDuration = firstHoldDuration + totalTravelDuration + finalHoldDuration;
+  const cycleDuration = steps.length * nodeHoldDuration + travelDistance * travelDuration;
   let animationFrame = 0;
   let cycleStartedAt = 0;
   let activeIndex = -2;
@@ -383,12 +381,12 @@ document.querySelectorAll(".journey").forEach((journey) => {
   const renderJourney = (now) => {
     if (!cycleStartedAt) cycleStartedAt = now;
     const elapsed = (now - cycleStartedAt) % cycleDuration;
-    const travelElapsed = elapsed - firstHoldDuration;
-    const stepPosition = elapsed < firstHoldDuration
-      ? 0
-      : travelElapsed < totalTravelDuration
-        ? travelElapsed / travelDuration
-        : steps.length - 1;
+    const phaseDuration = nodeHoldDuration + travelDuration;
+    const phaseIndex = Math.min(Math.floor(elapsed / phaseDuration), steps.length - 1);
+    const phaseElapsed = elapsed - phaseIndex * phaseDuration;
+    const stepPosition = phaseIndex === steps.length - 1 || phaseElapsed < nodeHoldDuration
+      ? phaseIndex
+      : phaseIndex + (phaseElapsed - nodeHoldDuration) / travelDuration;
 
     const pointPosition = setProgress(stepPosition);
     const nextActiveIndex = nodePositions.findIndex(
