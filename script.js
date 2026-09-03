@@ -14,6 +14,9 @@ document.querySelector("[data-year]").textContent = new Date().getFullYear();
 
 // Reveal content as it enters the viewport.
 const revealItems = document.querySelectorAll(".reveal");
+revealItems.forEach((item) => item.addEventListener("animationend", (event) => {
+  if (event.target === item && event.animationName === "reveal-in") item.classList.add("is-settled");
+}));
 
 if ("IntersectionObserver" in window) {
   const revealObserver = new IntersectionObserver(
@@ -40,7 +43,7 @@ function updateScrollUI() {
   const maxScroll = doc.scrollHeight - window.innerHeight;
   const percentage = maxScroll > 0 ? (currentScroll / maxScroll) * 100 : 0;
 
-  progress.style.width = `${percentage}%`;
+  progress.style.transform = `scaleX(${percentage / 100})`;
 
   header.classList.remove("is-hidden");
   scrollTicking = false;
@@ -103,7 +106,15 @@ const updateCurrentSection = () => {
   });
 };
 
-window.addEventListener("scroll", updateCurrentSection, { passive: true });
+let sectionTicking = false;
+window.addEventListener("scroll", () => {
+  if (sectionTicking || window.innerWidth <= 900) return;
+  sectionTicking = true;
+  requestAnimationFrame(() => {
+    updateCurrentSection();
+    sectionTicking = false;
+  });
+}, { passive: true });
 updateCurrentSection();
 
 // Animated numbers.
@@ -152,15 +163,27 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
   const typing = chat.querySelector("[data-chat-typing]");
   const bodyElement = chat.querySelector(".agent-chat-body");
   const messageBlueprints = messages.map((message) => message.innerHTML);
-  let started = false;
+  let inViewport = false;
+  let running = false;
   let conversationRun = 0;
+  let pendingScroll = 0;
+  let lastScrollAt = 0;
+  let lastScrollHeight = 0;
 
   const pause = (delay) => new Promise((resolve) => window.setTimeout(resolve, delay));
 
   const scrollConversation = () => {
-    requestAnimationFrame(() => {
-      bodyElement.scrollTo({ top: bodyElement.scrollHeight, behavior: "smooth" });
-    });
+    if (!running || pendingScroll) return;
+    pendingScroll = window.setTimeout(() => {
+      pendingScroll = 0;
+      if (!running) return;
+      const height = bodyElement.scrollHeight;
+      if (height !== lastScrollHeight) {
+        bodyElement.scrollTop = height;
+        lastScrollHeight = height;
+      }
+      lastScrollAt = performance.now();
+    }, Math.max(0, 120 - (performance.now() - lastScrollAt)));
   };
 
   const showMessage = (index) => {
@@ -184,6 +207,7 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
     });
     typing?.classList.remove("is-visible");
     bodyElement.scrollTop = 0;
+    lastScrollHeight = 0;
   };
 
   const typeBotMessage = async (index, runId) => {
@@ -225,25 +249,32 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
 
     showTyping();
     await pause(650);
+    if (runId !== conversationRun) return;
     hideTyping();
     await typeBotMessage(0, runId);
     await pause(750);
+    if (runId !== conversationRun) return;
     showMessage(1);
 
     const turns = [[2, 3], [4, 5], [6, 7], [8, 9]];
     for (const [botIndex, clientIndex] of turns) {
       await pause(850);
+      if (runId !== conversationRun) return;
       showTyping();
       await pause(650);
+      if (runId !== conversationRun) return;
       hideTyping();
       await typeBotMessage(botIndex, runId);
       await pause(750);
+      if (runId !== conversationRun) return;
       showMessage(clientIndex);
     }
 
     await pause(850);
+    if (runId !== conversationRun) return;
     showTyping();
     await pause(700);
+    if (runId !== conversationRun) return;
     hideTyping();
     await typeBotMessage(10, runId);
     await pause(4500);
@@ -255,19 +286,33 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
     return;
   }
 
+  const syncConversation = () => {
+    const shouldRun = inViewport && !document.hidden;
+    if (shouldRun === running) return;
+    running = shouldRun;
+    if (running) {
+      playConversation();
+    } else {
+      conversationRun += 1;
+      clearTimeout(pendingScroll);
+      pendingScroll = 0;
+      hideTyping();
+    }
+  };
+  document.addEventListener("visibilitychange", syncConversation);
+
   if ("IntersectionObserver" in window) {
     const chatObserver = new IntersectionObserver(
-      (entries, observer) => {
-        if (!entries.some((entry) => entry.isIntersecting) || started) return;
-        started = true;
-        playConversation();
-        observer.disconnect();
+      (entries) => {
+        inViewport = entries.some((entry) => entry.isIntersecting);
+        syncConversation();
       },
       { threshold: 0.3 },
     );
     chatObserver.observe(chat);
   } else {
-    playConversation();
+    inViewport = true;
+    syncConversation();
   }
 });
 
@@ -288,6 +333,10 @@ document.querySelectorAll(".journey").forEach((journey) => {
   let nodePositions = [];
   let nodeHitRadii = [];
   let lastStepPosition = 0;
+  let verticalJourney = false;
+  let inViewport = false;
+  let lastViewportWidth = window.innerWidth;
+  const movingPoint = journey.querySelector(".journey-line span");
 
   const setActiveStep = (index) => {
     if (index === activeIndex) return;
@@ -296,15 +345,15 @@ document.querySelectorAll(".journey").forEach((journey) => {
   };
 
   const refreshJourneyGeometry = () => {
-    const verticalJourney = window.matchMedia("(max-width: 1000px)").matches;
-    const journeyRect = journey.getBoundingClientRect();
+    verticalJourney = window.matchMedia("(max-width: 1000px)").matches;
     const centers = steps.map((step) => {
-      const nodeRect = step.querySelector(".journey-node").getBoundingClientRect();
+      const node = step.querySelector(".journey-node");
+      // Layout offsets exclude reveal translations and the active node's scale.
       return verticalJourney
-        ? nodeRect.top + nodeRect.height / 2 - journeyRect.top
-        : nodeRect.left + nodeRect.width / 2;
+        ? step.offsetTop + node.offsetTop + node.offsetHeight / 2
+        : step.offsetLeft + node.offsetLeft + node.offsetWidth / 2;
     });
-    nodeHitRadii = steps.map((step) => step.querySelector(".journey-node").getBoundingClientRect().width / 2);
+    nodeHitRadii = steps.map((step) => step.querySelector(".journey-node").offsetWidth / 2);
 
     if (verticalJourney) {
       const lineStart = centers[0];
@@ -313,10 +362,10 @@ document.querySelectorAll(".journey").forEach((journey) => {
       journey.style.setProperty("--journey-line-length", `${lineLength}px`);
       nodePositions = centers.map((center) => center - lineStart);
     } else {
-      const lineRect = journey.querySelector(".journey-line").getBoundingClientRect();
+      const lineLeft = journey.querySelector(".journey-line").offsetLeft;
       journey.style.removeProperty("--journey-line-start");
       journey.style.removeProperty("--journey-line-length");
-      nodePositions = centers.map((center) => center - lineRect.left);
+      nodePositions = centers.map((center) => center - lineLeft);
     }
   };
 
@@ -327,7 +376,7 @@ document.querySelectorAll(".journey").forEach((journey) => {
     const upperIndex = Math.min(lowerIndex + 1, steps.length - 1);
     const fraction = stepPosition - lowerIndex;
     const pointPosition = nodePositions[lowerIndex] + (nodePositions[upperIndex] - nodePositions[lowerIndex]) * fraction;
-    journey.style.setProperty("--journey-progress", `${pointPosition}px`);
+    movingPoint.style.transform = `translate3d(${verticalJourney ? 0 : pointPosition}px, ${verticalJourney ? pointPosition : 0}px, 0) translate(-50%, -50%)`;
     return pointPosition;
   };
 
@@ -363,6 +412,11 @@ document.querySelectorAll(".journey").forEach((journey) => {
     animationFrame = 0;
   };
 
+  const syncJourney = () => {
+    if (inViewport && !document.hidden) startJourney();
+    else stopJourney();
+  };
+
   if (reduceMotion || doc.classList.contains("qa-mode")) {
     refreshJourneyGeometry();
     setProgress(0);
@@ -374,26 +428,42 @@ document.querySelectorAll(".journey").forEach((journey) => {
     const journeyObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) startJourney();
-          else stopJourney();
+          inViewport = entry.isIntersecting;
+          syncJourney();
         });
       },
       { threshold: 0.22 },
     );
     journeyObserver.observe(journey);
   } else {
+    inViewport = true;
     startJourney();
   }
+  document.addEventListener("visibilitychange", syncJourney);
 
   window.addEventListener(
     "resize",
     () => {
+      if (window.innerWidth === lastViewportWidth) return;
+      lastViewportWidth = window.innerWidth;
       refreshJourneyGeometry();
       setProgress(lastStepPosition);
     },
     { passive: true },
   );
 });
+
+// Off-screen marquees do not need an active compositor animation.
+if ("IntersectionObserver" in window) {
+  document.querySelectorAll(".marquee-track").forEach((track) => {
+    let visible = false;
+    const sync = () => { track.style.animationPlayState = visible && !document.hidden ? "running" : "paused"; };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); });
+    observer.observe(track.closest(".marquee"));
+    document.addEventListener("visibilitychange", sync);
+    sync();
+  });
+}
 
 if (hasFinePointer && !reduceMotion) {
   const cursorGlow = document.querySelector(".cursor-glow");

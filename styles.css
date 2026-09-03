@@ -283,7 +283,8 @@ main,
 
 .page-progress span {
   display: block;
-  width: 0;
+  width: 100%;
+  transform: scaleX(0);
   height: 100%;
   transform-origin: left;
   background: linear-gradient(90deg, var(--red-dark), #ff6e72);
@@ -293,7 +294,7 @@ main,
 .reveal {
   opacity: 0;
   translate: 0 34px;
-  will-change: opacity, translate;
+  will-change: auto;
 }
 
 .reveal.is-visible {
@@ -3658,7 +3659,7 @@ main,
   position: absolute;
   z-index: 2;
   top: 50%;
-  left: var(--journey-progress, 0px);
+  left: 0;
   width: 11px;
   height: 11px;
   border: 2px solid #ff9b9f;
@@ -3974,7 +3975,7 @@ main,
   }
 
   .journey.is-visible .journey-line span {
-    top: var(--journey-progress, 0px);
+    top: 0;
   }
 
   .journey-edge {
@@ -6706,7 +6707,7 @@ main > .section:not(.hero) {
   background-image:
     linear-gradient(90deg, rgba(8, 8, 9, 0.56), rgba(8, 8, 9, 0.18) 58%, rgba(8, 8, 9, 0.36)),
     linear-gradient(180deg, rgba(8, 8, 9, 0.15), rgba(8, 8, 9, 0.62)),
-    url("assets/process-backgrounds.png");
+    url("assets/process-backgrounds.webp");
   background-repeat: no-repeat;
   background-size: 100% 100%, 100% 100%, 300% 200%;
   background-position: center, center, 0% 0%;
@@ -6963,4 +6964,66 @@ main > .section:not(.hero) {
   .visual-chip {
     background: #111112;
   }
+}
+
+/* Touch devices: keep the red/black design without full-screen GPU filters. */
+.reveal.is-settled {
+  animation: none;
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (max-width: 1000px), (pointer: coarse) {
+  .site-atmosphere {
+    background: radial-gradient(ellipse at 100% 0, #281015, transparent 65%), #080809;
+  }
+
+  .site-atmosphere > *,
+  .site-atmosphere::before,
+  .site-atmosphere::after,
+  .noise,
+  .cursor-glow,
+  .hero-portrait-aura,
+  .hero-photo-sheen,
+  .agent-chat-stage::before {
+    display: none;
+  }
+
+  /* Sticky glass otherwise re-rasterizes the page under it while scrolling. */
+  .nav-shell,
+  .mobile-menu,
+  .project-status,
+  .project-open,
+  .photo-status {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: #111113;
+  }
+
+  .hero-portrait { perspective: none; }
+  .hero-portrait-card {
+    transform: none;
+    transform-style: flat;
+    will-change: auto;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-portrait-card:hover,
+  .hero-portrait-card:hover .hero-photo img,
+  .project-tile:hover .project-preview img {
+    transform: none;
+    filter: none;
+  }
+
+  .hero-glow,
+  .services-glow,
+  .contact-orb { display: none; }
+
+  .brand-logo { filter: none; }
+  .status-dot::after, .live-badge i::after { animation: none; }
+  .agent-chat-body { overscroll-behavior: contain; }
+  .agent-chat-window { contain: layout paint; }
+  .marquee-track { animation-duration: 62s; }
+  .journey-card-bg { transform: none; transition: opacity 0.42s ease; }
+  .journey-card, .journey-node { will-change: auto; }
 }
