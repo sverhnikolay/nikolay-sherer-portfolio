@@ -79,6 +79,17 @@ async function main() {
       assert.ok(closingHeight < openHeight && closingHeight > closedHeight,`${width}: FAQ did not animate closed`);
       await page.waitForTimeout(420);
       assert.equal(await firstFaq.getAttribute('open'),null,`${width}: FAQ did not close`);
+
+      const guaranteeIcons = page.locator('.guarantee-icon img');
+      assert.equal(await guaranteeIcons.count(),4,`${width}: guarantee artwork count`);
+      assert.equal(await page.locator('.guarantee-icon svg').count(),0,`${width}: legacy guarantee vectors remain`);
+      await page.locator('#guarantees').scrollIntoViewIfNeeded();
+      const guaranteeArtworkReady = await guaranteeIcons.evaluateAll(async images => {
+        await Promise.all(images.map(image => image.decode()));
+        return images.every(image => image.naturalWidth >= 512);
+      });
+      assert.equal(guaranteeArtworkReady,true,`${width}: guarantee artwork did not load`);
+      if (qaDir) await page.screenshot({ path: path.join(qaDir, `guarantees-${width}.png`) });
       console.log(JSON.stringify({width,states,passed:true}));
       await page.close();
     }
