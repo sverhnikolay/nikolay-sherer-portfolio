@@ -14,6 +14,12 @@ async function main() {
       const timeline = page.locator('[data-scroll-process]');
       const stages = timeline.locator('[data-process-stage]');
       assert.equal(await stages.count(),6);
+      assert.deepEqual(await timeline.locator('.scroll-process-node b').allTextContents(), ['1','2','3','4','5','6']);
+      const layerOrder = await timeline.evaluate(element => ({
+        rail: Number(getComputedStyle(element.querySelector('.scroll-process-rail')).zIndex),
+        list: Number(getComputedStyle(element.querySelector('.scroll-process-list')).zIndex),
+      }));
+      assert.ok(layerOrder.list > layerOrder.rail, `${width}: rail must stay behind the nodes`);
 
       const states = [];
       for (let index = 0; index < 6; index++) {
@@ -45,6 +51,29 @@ async function main() {
           .sort((a, b) => b.right - a.right)[0],
       }));
       assert.equal(timelineOverflow.overflow,false,`${width}: timeline overflow ${JSON.stringify(timelineOverflow)}`);
+      const artworkReady = await timeline.locator('.scroll-process-art').evaluateAll(async images => {
+        await Promise.all(images.map(image => image.decode()));
+        return images.every(image => image.naturalWidth >= 640);
+      });
+      assert.equal(artworkReady,true,`${width}: process artwork did not load`);
+
+      const firstFaq = page.locator('.faq-list details').first();
+      const firstSummary = firstFaq.locator('summary');
+      await firstFaq.scrollIntoViewIfNeeded();
+      assert.equal(await firstFaq.getAttribute('open'),null,`${width}: first FAQ must start closed`);
+      const closedHeight = await firstFaq.evaluate(element => element.getBoundingClientRect().height);
+      await firstSummary.click();
+      await page.waitForTimeout(100);
+      const openingHeight = await firstFaq.evaluate(element => element.getBoundingClientRect().height);
+      await page.waitForTimeout(420);
+      const openHeight = await firstFaq.evaluate(element => element.getBoundingClientRect().height);
+      assert.ok(openingHeight > closedHeight && openingHeight < openHeight,`${width}: FAQ did not animate open`);
+      await firstSummary.click();
+      await page.waitForTimeout(100);
+      const closingHeight = await firstFaq.evaluate(element => element.getBoundingClientRect().height);
+      assert.ok(closingHeight < openHeight && closingHeight > closedHeight,`${width}: FAQ did not animate closed`);
+      await page.waitForTimeout(420);
+      assert.equal(await firstFaq.getAttribute('open'),null,`${width}: FAQ did not close`);
       console.log(JSON.stringify({width,states,passed:true}));
       await page.close();
     }

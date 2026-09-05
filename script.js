@@ -386,6 +386,47 @@ document.querySelectorAll("[data-scroll-process]").forEach((process) => {
   refresh();
 });
 
+// Smooth FAQ disclosure without changing native keyboard semantics.
+document.querySelectorAll(".faq-list details").forEach((details) => {
+  const summary = details.querySelector("summary");
+  if (!summary) return;
+
+  let faqAnimation = null;
+
+  summary.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    const opening = !details.open || details.classList.contains("is-closing");
+    const startHeight = details.getBoundingClientRect().height;
+    faqAnimation?.cancel();
+
+    if (opening) {
+      details.open = true;
+      details.classList.remove("is-closing");
+    } else {
+      details.classList.add("is-closing");
+    }
+
+    const endHeight = opening ? details.scrollHeight : summary.getBoundingClientRect().height;
+    if (reduceMotion) {
+      if (!opening) details.open = false;
+      details.classList.remove("is-closing");
+      return;
+    }
+
+    faqAnimation = details.animate(
+      { height: [`${startHeight}px`, `${endHeight}px`] },
+      { duration: 420, easing: "cubic-bezier(.22,.8,.2,1)" },
+    );
+
+    faqAnimation.onfinish = () => {
+      if (!opening) details.open = false;
+      details.classList.remove("is-closing");
+      faqAnimation = null;
+    };
+  });
+});
+
 // Off-screen marquees do not need an active compositor animation.
 if ("IntersectionObserver" in window) {
   document.querySelectorAll(".marquee-track").forEach((track) => {
