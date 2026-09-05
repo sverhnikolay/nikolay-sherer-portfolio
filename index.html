@@ -17,8 +17,8 @@
     <title>Николай Шерер — сайты, AI и автоматизации для бизнеса</title>
     <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-    <link rel="stylesheet" href="styles.css?v=20260904-1" />
-    <script src="script.js?v=20260904-2" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260906-1" />
+    <script src="script.js?v=20260906-1" defer></script>
   </head>
 
   <body>
@@ -406,81 +406,74 @@
 
       <section class="process section" id="process" aria-labelledby="process-title">
         <div class="container">
-          <div class="section-heading reveal">
+          <div class="section-heading process-heading reveal">
             <div>
               <span class="section-kicker">ПРОЦЕСС</span>
-              <h2 id="process-title">Шесть шагов<br /><em>до готового запуска</em></h2>
+              <h2 id="process-title">От задачи<br /><em>до работающего продукта</em></h2>
             </div>
           </div>
 
-          <div class="journey reveal" aria-label="Маршрут работы над проектом из шести этапов">
-            <div class="journey-line" aria-hidden="true"><i></i><span></span></div>
+          <div class="scroll-process" data-scroll-process aria-label="Путь работы над проектом из шести этапов">
+            <div class="scroll-process-rail" aria-hidden="true">
+              <span class="scroll-process-fill"></span>
+              <span class="scroll-process-marker"><i></i></span>
+            </div>
 
-            <article class="journey-step journey-step--top journey-step--scene-1" style="--step-delay: .12s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+            <ol class="scroll-process-list">
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>01</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Разбираемся в задаче</span>
                   <h3>Погружение</h3>
-                  <p>За один созвон выясняю, что вы продаёте, кому и зачем нужен новый продукт.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>01</b></span>
-            </article>
+                  <p>На созвоне выясняю, что вы продаёте, кому и какой результат должен дать новый продукт.</p>
+                </article>
+              </li>
 
-            <article class="journey-step journey-step--bottom journey-step--scene-2" style="--step-delay: .2s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>02</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Определяем маршрут</span>
                   <h3>Стратегия</h3>
-                  <p>Фиксирую главную цель, путь клиента и функции первой версии.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>02</b></span>
-            </article>
+                  <p>Фиксирую цель, путь клиента и функции, которые действительно нужны для запуска.</p>
+                </article>
+              </li>
 
-            <article class="journey-step journey-step--top journey-step--scene-3" style="--step-delay: .28s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>03</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Проверяем логику</span>
                   <h3>Прототип</h3>
-                  <p>Показываю кликабельную схему: что увидит клиент и куда нажмёт.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>03</b></span>
-            </article>
+                  <p>Собираю кликабельную схему, чтобы до дизайна было понятно, что увидит клиент и куда нажмёт.</p>
+                </article>
+              </li>
 
-            <article class="journey-step journey-step--bottom journey-step--scene-4" style="--step-delay: .36s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>04</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Создаём впечатление</span>
                   <h3>Дизайн</h3>
-                  <p>Оформляю страницы так, чтобы главное было видно с первого экрана.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>04</b></span>
-            </article>
+                  <p>Выстраиваю визуальную систему, которая быстро объясняет ценность и ведёт к нужному действию.</p>
+                </article>
+              </li>
 
-            <article class="journey-step journey-step--top journey-step--scene-5" style="--step-delay: .44s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>05</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Собираем продукт</span>
                   <h3>Разработка</h3>
-                  <p>Собираю продукт, подключаю формы, аналитику и нужные сервисы.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>05</b></span>
-            </article>
+                  <p>Верстаю, программирую и подключаю формы, аналитику, интеграции и автоматизации.</p>
+                </article>
+              </li>
 
-            <article class="journey-step journey-step--bottom journey-step--scene-6" style="--step-delay: .52s">
-              <div class="journey-card-shell">
-                <div class="journey-card">
-                  <span class="journey-card-bg" aria-hidden="true"></span>
+              <li class="scroll-process-stage" data-process-stage>
+                <span class="scroll-process-node" aria-hidden="true"><b>06</b></span>
+                <article class="scroll-process-card">
+                  <span class="scroll-process-card-label">Передаём в работу</span>
                   <h3>Запуск</h3>
-                  <p>Не пропадаю после запуска: передаю доступы и обучаю управлять продуктом без помощи программиста.</p>
-                </div>
-              </div>
-              <span class="journey-node"><b>06</b></span>
-            </article>
+                  <p>Проверяю всё в деле, передаю доступы и обучаю управлять продуктом без помощи программиста.</p>
+                </article>
+              </li>
+            </ol>
           </div>
         </div>
       </section>

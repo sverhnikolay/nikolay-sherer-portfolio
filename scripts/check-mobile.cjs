@@ -59,7 +59,7 @@ async function main() {
       if (!baseline) assert.equal(overflow,false,`Overflow at ${width}px`);
     }
     await page.setViewportSize({width:390,height:844});
-    await page.locator('.journey').scrollIntoViewIfNeeded();
+    await page.locator('.scroll-process').scrollIntoViewIfNeeded();
     await page.waitForTimeout(1800);
     await page.screenshot({path:path.join(dir,baseline?'before-process.png':'after-process.png')});
     if (!baseline) {

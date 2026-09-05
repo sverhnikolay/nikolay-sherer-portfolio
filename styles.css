@@ -7027,3 +7027,437 @@ main > .section:not(.hero) {
   .journey-card-bg { transform: none; transition: opacity 0.42s ease; }
   .journey-card, .journey-node { will-change: auto; }
 }
+
+/* Scroll-driven process timeline */
+.process {
+  overflow: clip;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 53, 61, 0.055), transparent 33%),
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.008), transparent);
+}
+
+.process-heading {
+  position: relative;
+  z-index: 3;
+}
+
+.scroll-process {
+  --process-progress: 0;
+  --process-fill: 0px;
+  --process-rail-start: 0px;
+  --process-rail-length: 1px;
+  position: relative;
+  margin-top: 42px;
+}
+
+.scroll-process::before {
+  position: absolute;
+  z-index: 0;
+  top: 2%;
+  bottom: 2%;
+  left: 50%;
+  width: min(68vw, 860px);
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(ellipse, rgba(162, 13, 22, 0.08), transparent 68%);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.scroll-process-list {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scroll-process-rail {
+  position: absolute;
+  z-index: 3;
+  top: var(--process-rail-start);
+  left: 50%;
+  width: 3px;
+  height: var(--process-rail-length);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.scroll-process-rail::before,
+.scroll-process-rail::after {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #777371;
+  border-radius: 50%;
+  content: "";
+  background: #0b0b0c;
+  transform: translate(-50%, -50%);
+}
+
+.scroll-process-rail::before { top: 0; }
+.scroll-process-rail::after { top: 100%; }
+
+.scroll-process-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #a50d15, #ff353d 44%, #ff7c81);
+  box-shadow: 0 0 18px rgba(255, 53, 61, 0.5);
+  transform: scaleY(var(--process-progress));
+  transform-origin: top;
+  transition: transform 0.1s linear;
+}
+
+.scroll-process-marker {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: 50%;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  border: 2px solid #ffb0b3;
+  border-radius: 50%;
+  background: #ff353d;
+  box-shadow: 0 0 0 8px rgba(255, 53, 61, 0.11), 0 0 28px rgba(255, 53, 61, 0.8);
+  place-items: center;
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(var(--process-fill));
+  transition: transform 0.1s linear, opacity 0.3s ease;
+}
+
+.scroll-process.is-started .scroll-process-marker { opacity: 1; }
+
+.scroll-process-marker i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff;
+}
+
+.scroll-process-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px minmax(0, 1fr);
+  min-height: clamp(340px, 37vw, 440px);
+  align-items: center;
+  counter-increment: process-stage;
+}
+
+.scroll-process-stage::before {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  width: 52px;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04));
+  transition: background 0.55s ease, box-shadow 0.55s ease;
+}
+
+.scroll-process-stage:nth-child(odd)::before {
+  right: 50%;
+}
+
+.scroll-process-stage:nth-child(even)::before {
+  left: 50%;
+  transform: scaleX(-1);
+}
+
+.scroll-process-stage.is-reached::before {
+  background: linear-gradient(90deg, #ff353d, rgba(255, 53, 61, 0.18));
+  box-shadow: 0 0 14px rgba(255, 53, 61, 0.28);
+}
+
+.scroll-process-node {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  width: 66px;
+  height: 66px;
+  justify-self: center;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 50%;
+  color: #6e6b69;
+  background: #101011;
+  box-shadow: 0 0 0 10px rgba(8, 8, 9, 0.96);
+  place-items: center;
+  transition: color 0.5s ease, background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, transform 0.55s var(--ease);
+}
+
+.scroll-process-node::before {
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: inherit;
+  content: "";
+  transition: border-color 0.5s ease;
+}
+
+.scroll-process-node b {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.scroll-process-stage.is-reached .scroll-process-node {
+  border-color: rgba(255, 53, 61, 0.6);
+  color: #fff;
+  background: linear-gradient(145deg, #ec252e, #870a11);
+  box-shadow: 0 0 0 10px rgba(8, 8, 9, 0.96), 0 0 24px rgba(255, 53, 61, 0.28);
+}
+
+.scroll-process-stage.is-current .scroll-process-node {
+  border-color: #ff8f94;
+  box-shadow: 0 0 0 10px rgba(8, 8, 9, 0.96), 0 0 40px rgba(255, 53, 61, 0.62);
+  transform: scale(1.14);
+}
+
+.scroll-process-stage.is-current .scroll-process-node::before {
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+.scroll-process-card {
+  position: relative;
+  width: min(100%, 500px);
+  min-height: 235px;
+  padding: 38px 40px 36px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 44%),
+    #101011;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.24);
+  opacity: 0.36;
+  transition: opacity 0.65s ease, transform 0.7s var(--ease), border-color 0.55s ease, background 0.55s ease, box-shadow 0.65s ease;
+}
+
+.scroll-process-card::before {
+  position: absolute;
+  top: 0;
+  right: 18%;
+  left: 18%;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 53, 61, 0.85), transparent);
+  opacity: 0;
+  transform: scaleX(0.35);
+  transition: opacity 0.55s ease, transform 0.75s var(--ease);
+}
+
+.scroll-process-card::after {
+  position: absolute;
+  z-index: 0;
+  right: -90px;
+  bottom: -110px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(circle, rgba(255, 53, 61, 0.12), transparent 68%);
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.9s var(--ease);
+  transform: scale(0.7);
+}
+
+.scroll-process-stage:nth-child(odd) .scroll-process-card {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  transform: translateX(-24px) scale(0.97);
+}
+
+.scroll-process-stage:nth-child(even) .scroll-process-card {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: start;
+  transform: translateX(24px) scale(0.97);
+}
+
+.scroll-process-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-process-card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #7f7b79;
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.5s ease;
+}
+
+.scroll-process-card-label::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  content: "";
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.scroll-process-card h3 {
+  margin: 25px 0 17px;
+  font-size: clamp(32px, 3vw, 46px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.scroll-process-card p {
+  max-width: 420px;
+  margin: 0;
+  color: #918e8b;
+  font-size: 15px;
+  line-height: 1.68;
+  transition: color 0.5s ease;
+}
+
+.scroll-process-stage.is-reached .scroll-process-card {
+  border-color: rgba(255, 53, 61, 0.19);
+  opacity: 0.72;
+  transform: translateX(0) scale(1);
+}
+
+.scroll-process-stage.is-current .scroll-process-card {
+  border-color: rgba(255, 53, 61, 0.52);
+  background:
+    radial-gradient(circle at 92% 100%, rgba(255, 53, 61, 0.13), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 45%),
+    #131314;
+  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.38), 0 0 40px rgba(255, 53, 61, 0.07);
+  opacity: 1;
+}
+
+.scroll-process-stage.is-current .scroll-process-card::before,
+.scroll-process-stage.is-current .scroll-process-card::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scroll-process-stage.is-current .scroll-process-card-label {
+  color: #ff5960;
+}
+
+.scroll-process-stage.is-current .scroll-process-card p {
+  color: #c6c2bf;
+}
+
+@media (max-width: 760px) {
+  .scroll-process {
+    margin-top: 32px;
+  }
+
+  .scroll-process::before {
+    left: 34px;
+    width: 390px;
+    transform: translateX(-50%);
+  }
+
+  .scroll-process-rail {
+    left: 34px;
+  }
+
+  .scroll-process-stage {
+    grid-template-columns: 68px minmax(0, 1fr);
+    min-height: 330px;
+  }
+
+  .scroll-process-stage::before,
+  .scroll-process-stage:nth-child(odd)::before,
+  .scroll-process-stage:nth-child(even)::before {
+    right: auto;
+    left: 34px;
+    width: 34px;
+    transform: none;
+  }
+
+  .scroll-process-node {
+    grid-column: 1;
+    width: 54px;
+    height: 54px;
+    justify-self: start;
+    margin-left: 7px;
+    box-shadow: 0 0 0 7px rgba(8, 8, 9, 0.96);
+  }
+
+  .scroll-process-stage.is-reached .scroll-process-node,
+  .scroll-process-stage.is-current .scroll-process-node {
+    box-shadow: 0 0 0 7px rgba(8, 8, 9, 0.96), 0 0 26px rgba(255, 53, 61, 0.38);
+  }
+
+  .scroll-process-stage:nth-child(odd) .scroll-process-card,
+  .scroll-process-stage:nth-child(even) .scroll-process-card {
+    grid-column: 2;
+    width: 100%;
+    min-height: 230px;
+    padding: 30px 27px;
+    justify-self: stretch;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  .scroll-process-stage.is-reached .scroll-process-card,
+  .scroll-process-stage.is-current .scroll-process-card {
+    transform: translateY(0) scale(1);
+  }
+
+  .scroll-process-card h3 {
+    margin-top: 21px;
+    font-size: clamp(29px, 9vw, 39px);
+  }
+
+  .scroll-process-card p {
+    font-size: 14px;
+    line-height: 1.62;
+  }
+}
+
+@media (max-width: 420px) {
+  .scroll-process-stage {
+    grid-template-columns: 58px minmax(0, 1fr);
+    min-height: 350px;
+  }
+
+  .scroll-process-rail,
+  .scroll-process-stage::before,
+  .scroll-process-stage:nth-child(odd)::before,
+  .scroll-process-stage:nth-child(even)::before {
+    left: 27px;
+  }
+
+  .scroll-process-stage::before,
+  .scroll-process-stage:nth-child(odd)::before,
+  .scroll-process-stage:nth-child(even)::before {
+    width: 31px;
+  }
+
+  .scroll-process-node {
+    width: 48px;
+    height: 48px;
+    margin-left: 3px;
+  }
+
+  .scroll-process-stage:nth-child(odd) .scroll-process-card,
+  .scroll-process-stage:nth-child(even) .scroll-process-card {
+    padding: 27px 22px;
+    border-radius: 19px;
+  }
+
+  .scroll-process-card-label {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+}

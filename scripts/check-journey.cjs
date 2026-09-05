@@ -1,33 +1,51 @@
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
 async function main() {
+  const qaDir = process.env.PROCESS_QA_DIR;
+  if (qaDir) fs.mkdirSync(qaDir, { recursive: true });
   const browser = await chromium.launch({channel:'chrome',headless:true});
   try {
     for (const width of [390,1440]) {
       const page = await browser.newPage({viewport:{width,height:844},hasTouch:width<1000,isMobile:width<1000});
       await page.goto(process.argv[2] || 'http://127.0.0.1:4173/',{waitUntil:'networkidle'});
-      await page.locator('.journey').scrollIntoViewIfNeeded();
-      await page.waitForTimeout(1800);
-      const samples = await page.evaluate(async () => {
-        const point = document.querySelector('.journey-line span');
-        const nodes = [...document.querySelectorAll('.journey-node')];
-        const samples = [];
-        for (let i=0; i<165; i++) {
-          const rect = point.getBoundingClientRect();
-          const centers = nodes.map(node => {const r=node.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
-          const distances = centers.map(center => Math.hypot(rect.x+rect.width/2-center.x,rect.y+rect.height/2-center.y));
-          samples.push({time:performance.now(),distances,active:nodes.findIndex(node=>node.parentElement.classList.contains('is-active'))});
-          await new Promise(resolve=>setTimeout(resolve,100));
-        }
-        return samples;
-      });
-      const holds = samples.map(sample => sample.distances.findIndex(distance => distance < 2));
+      const timeline = page.locator('[data-scroll-process]');
+      const stages = timeline.locator('[data-process-stage]');
+      assert.equal(await stages.count(),6);
+
+      const states = [];
       for (let index = 0; index < 6; index++) {
-        const held = samples.filter((sample, sampleIndex) => holds[sampleIndex] === index);
-        assert.ok(held.length >= 12, `${width}: missing hold on step ${index + 1}`);
-        assert.ok(held.every(sample => sample.active === index));
+        await stages.nth(index).evaluate(element => element.scrollIntoView({block:'center',behavior:'instant'}));
+        await page.waitForTimeout(180);
+        states.push(await page.evaluate(() => ({
+          progress:Number(getComputedStyle(document.querySelector('[data-scroll-process]')).getPropertyValue('--process-progress')),
+          reached:[...document.querySelectorAll('[data-process-stage]')].filter(stage=>stage.classList.contains('is-reached')).length,
+          current:[...document.querySelectorAll('[data-process-stage]')].findIndex(stage=>stage.classList.contains('is-current')),
+        })));
+        if (qaDir && index === 2) {
+          await page.screenshot({ path: path.join(qaDir, `process-${width}.png`) });
+        }
       }
-      console.log(JSON.stringify({width,perStep:samples.reduce((counts, sample, index) => { const hold = holds[index]; if (hold >= 0) counts[hold] += 1; return counts; }, [0,0,0,0,0,0]),passed:true}));
+
+      states.forEach((state,index) => {
+        assert.equal(state.current,index,`${width}: wrong current stage at ${index+1}`);
+        assert.equal(state.reached,index+1,`${width}: wrong reached count at ${index+1}`);
+        if (index) assert.ok(state.progress > states[index-1].progress,`${width}: progress did not grow`);
+      });
+      assert.ok(states[0].progress < 0.1);
+      assert.ok(states.at(-1).progress > 0.9);
+      const timelineOverflow = await timeline.evaluate(element => ({
+        overflow: element.scrollWidth > element.clientWidth,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        widest: [...element.querySelectorAll('*')]
+          .map(child => ({ className: child.className, left: child.getBoundingClientRect().left, right: child.getBoundingClientRect().right }))
+          .sort((a, b) => b.right - a.right)[0],
+      }));
+      assert.equal(timelineOverflow.overflow,false,`${width}: timeline overflow ${JSON.stringify(timelineOverflow)}`);
+      console.log(JSON.stringify({width,states,passed:true}));
       await page.close();
     }
   } finally { await browser.close(); }

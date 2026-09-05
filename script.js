@@ -316,139 +316,74 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
   }
 });
 
-// The moving journey point activates each milestone when it reaches the node.
-document.querySelectorAll(".journey").forEach((journey) => {
-  const steps = [...journey.querySelectorAll(".journey-step")];
-  if (!steps.length) return;
+// Scroll-driven process: the rail follows the viewport and activates each passed stage.
+document.querySelectorAll("[data-scroll-process]").forEach((process) => {
+  const stages = [...process.querySelectorAll("[data-process-stage]")];
+  const rail = process.querySelector(".scroll-process-rail");
+  if (!stages.length || !rail) return;
 
-  const nodeHoldDuration = 1500;
-  const travelDuration = 1300;
-  const travelDistance = steps.length - 1;
-  const cycleDuration = steps.length * nodeHoldDuration + travelDistance * travelDuration;
-  let animationFrame = 0;
-  let cycleStartedAt = 0;
-  let activeIndex = -2;
   let nodePositions = [];
-  let nodeHitRadii = [];
-  let lastStepPosition = 0;
-  let verticalJourney = false;
-  let inViewport = false;
-  let lastViewportWidth = window.innerWidth;
-  const movingPoint = journey.querySelector(".journey-line span");
+  let railStart = 0;
+  let railLength = 1;
+  let frame = 0;
 
-  const setActiveStep = (index) => {
-    if (index === activeIndex) return;
-    activeIndex = index;
-    steps.forEach((step, stepIndex) => step.classList.toggle("is-active", stepIndex === index));
-  };
-
-  const refreshJourneyGeometry = () => {
-    verticalJourney = window.matchMedia("(max-width: 1000px)").matches;
-    const centers = steps.map((step) => {
-      const node = step.querySelector(".journey-node");
-      // Layout offsets exclude reveal translations and the active node's scale.
-      return verticalJourney
-        ? step.offsetTop + node.offsetTop + node.offsetHeight / 2
-        : step.offsetLeft + node.offsetLeft + node.offsetWidth / 2;
+  const measure = () => {
+    nodePositions = stages.map((stage) => {
+      const node = stage.querySelector(".scroll-process-node");
+      return stage.offsetTop + node.offsetTop + node.offsetHeight / 2;
     });
-    nodeHitRadii = steps.map((step) => step.querySelector(".journey-node").offsetWidth / 2);
-
-    if (verticalJourney) {
-      const lineStart = centers[0];
-      const lineLength = centers.at(-1) - lineStart;
-      journey.style.setProperty("--journey-line-start", `${lineStart}px`);
-      journey.style.setProperty("--journey-line-length", `${lineLength}px`);
-      nodePositions = centers.map((center) => center - lineStart);
-    } else {
-      const lineLeft = journey.querySelector(".journey-line").offsetLeft;
-      journey.style.removeProperty("--journey-line-start");
-      journey.style.removeProperty("--journey-line-length");
-      nodePositions = centers.map((center) => center - lineLeft);
-    }
+    railStart = nodePositions[0];
+    railLength = Math.max(1, nodePositions.at(-1) - railStart);
+    process.style.setProperty("--process-rail-start", `${railStart}px`);
+    process.style.setProperty("--process-rail-length", `${railLength}px`);
   };
 
-  const setProgress = (stepPosition) => {
-    if (!nodePositions.length) refreshJourneyGeometry();
-    lastStepPosition = stepPosition;
-    const lowerIndex = Math.min(Math.floor(stepPosition), steps.length - 1);
-    const upperIndex = Math.min(lowerIndex + 1, steps.length - 1);
-    const fraction = stepPosition - lowerIndex;
-    const pointPosition = nodePositions[lowerIndex] + (nodePositions[upperIndex] - nodePositions[lowerIndex]) * fraction;
-    movingPoint.style.transform = `translate3d(${verticalJourney ? 0 : pointPosition}px, ${verticalJourney ? pointPosition : 0}px, 0) translate(-50%, -50%)`;
-    return pointPosition;
-  };
+  const render = () => {
+    frame = 0;
+    if (!nodePositions.length) measure();
 
-  const renderJourney = (now) => {
-    if (!cycleStartedAt) cycleStartedAt = now;
-    const elapsed = (now - cycleStartedAt) % cycleDuration;
-    const phaseDuration = nodeHoldDuration + travelDuration;
-    const phaseIndex = Math.min(Math.floor(elapsed / phaseDuration), steps.length - 1);
-    const phaseElapsed = elapsed - phaseIndex * phaseDuration;
-    const stepPosition = phaseIndex === steps.length - 1 || phaseElapsed < nodeHoldDuration
-      ? phaseIndex
-      : phaseIndex + (phaseElapsed - nodeHoldDuration) / travelDuration;
-
-    const pointPosition = setProgress(stepPosition);
-    const nextActiveIndex = nodePositions.findIndex(
-      (nodePosition, index) => Math.abs(nodePosition - pointPosition) <= nodeHitRadii[index],
+    const processRect = process.getBoundingClientRect();
+    const triggerY = window.innerHeight * (window.innerWidth <= 760 ? 0.58 : 0.54);
+    const rawCursorPosition = triggerY - processRect.top;
+    const cursorPosition = Math.min(
+      railStart + railLength,
+      Math.max(railStart, rawCursorPosition),
     );
-    setActiveStep(nextActiveIndex);
-    animationFrame = window.requestAnimationFrame(renderJourney);
+    const started = rawCursorPosition >= railStart;
+    const progressValue = (cursorPosition - railStart) / railLength;
+    process.classList.toggle("is-started", started);
+    process.style.setProperty("--process-progress", progressValue.toFixed(4));
+    process.style.setProperty("--process-fill", `${cursorPosition - railStart}px`);
+
+    let currentIndex = -1;
+    nodePositions.forEach((position, index) => {
+      const reached = started && cursorPosition >= position - 1;
+      stages[index].classList.toggle("is-reached", reached);
+      if (reached) currentIndex = index;
+    });
+    stages.forEach((stage, index) => {
+      const current = index === currentIndex;
+      stage.classList.toggle("is-current", current);
+      if (current) stage.setAttribute("aria-current", "step");
+      else stage.removeAttribute("aria-current");
+    });
   };
 
-  const startJourney = () => {
-    window.cancelAnimationFrame(animationFrame);
-    cycleStartedAt = 0;
-    refreshJourneyGeometry();
-    setProgress(0);
-    setActiveStep(0);
-    animationFrame = window.requestAnimationFrame(renderJourney);
+  const requestRender = () => {
+    if (frame) return;
+    frame = window.requestAnimationFrame(render);
   };
 
-  const stopJourney = () => {
-    window.cancelAnimationFrame(animationFrame);
-    animationFrame = 0;
+  const refresh = () => {
+    nodePositions = [];
+    measure();
+    requestRender();
   };
 
-  const syncJourney = () => {
-    if (inViewport && !document.hidden) startJourney();
-    else stopJourney();
-  };
-
-  if (reduceMotion || doc.classList.contains("qa-mode")) {
-    refreshJourneyGeometry();
-    setProgress(0);
-    setActiveStep(0);
-    return;
-  }
-
-  if ("IntersectionObserver" in window) {
-    const journeyObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          inViewport = entry.isIntersecting;
-          syncJourney();
-        });
-      },
-      { threshold: 0.22 },
-    );
-    journeyObserver.observe(journey);
-  } else {
-    inViewport = true;
-    startJourney();
-  }
-  document.addEventListener("visibilitychange", syncJourney);
-
-  window.addEventListener(
-    "resize",
-    () => {
-      if (window.innerWidth === lastViewportWidth) return;
-      lastViewportWidth = window.innerWidth;
-      refreshJourneyGeometry();
-      setProgress(lastStepPosition);
-    },
-    { passive: true },
-  );
+  window.addEventListener("scroll", requestRender, { passive: true });
+  window.addEventListener("resize", refresh, { passive: true });
+  document.fonts?.ready.then(refresh);
+  refresh();
 });
 
 // Off-screen marquees do not need an active compositor animation.
