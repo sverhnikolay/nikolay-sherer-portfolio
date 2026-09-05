@@ -20,6 +20,10 @@ async function main() {
     await cdp.send('Performance.enable');
     await page.goto(url, {waitUntil:'networkidle'});
     await page.waitForTimeout(1200);
+    const heroLayout = await page.evaluate(() => ({
+      verticalDivider: getComputedStyle(document.querySelector('.hero'), '::after').display,
+      horizontalDivider: getComputedStyle(document.querySelector('.hero-grid'), '::after').content,
+    }));
     const initialBytes = await page.evaluate(() => performance.getEntriesByType('resource').reduce((sum,e)=>sum+e.encodedBodySize,0));
     await page.screenshot({path:path.join(dir,baseline?'before-hero.png':'after-hero.png')});
     await page.locator('.agent-chat-window').scrollIntoViewIfNeeded();
@@ -49,6 +53,8 @@ async function main() {
       assert.equal(state.mobileBlur,'none');
       assert.ok(typingVisible>0,'Chat runs when visible');
       assert.equal(state.projects,6);
+      assert.equal(heroLayout.verticalDivider,'none','Mobile hero must not keep a vertical divider');
+      assert.notEqual(heroLayout.horizontalDivider,'none','Mobile hero needs a horizontal divider before the portrait');
     }
     const widths = [];
     for (const width of [360,390,768,1440]) {

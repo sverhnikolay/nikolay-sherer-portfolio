@@ -4673,9 +4673,26 @@ main,
 
   .hero-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto clamp(72px, 10vw, 106px) auto;
+    gap: 0;
+  }
+
+  .hero-grid::after {
+    display: block;
+    grid-column: 1;
+    grid-row: 2;
+    width: min(100%, 520px);
+    height: 1px;
+    margin: 0 auto;
+    align-self: center;
+    content: "";
+    background: linear-gradient(90deg, transparent, rgba(255, 53, 61, 0.86) 50%, transparent);
+    box-shadow: 0 0 22px rgba(255, 53, 61, 0.35);
   }
 
   .hero-copy {
+    grid-column: 1;
+    grid-row: 1;
     text-align: center;
   }
 
@@ -4694,13 +4711,19 @@ main,
     justify-content: center;
   }
 
-  .hero-visual {
+  .hero-grid .hero-visual {
+    grid-column: 1;
+    grid-row: 3;
     width: min(620px, 90%);
-    margin: 50px auto 0;
+    margin: 0 auto;
   }
 
   .hero-metrics {
     margin-top: 100px;
+  }
+
+  .hero::after {
+    display: none;
   }
 
   .about-card {
@@ -7335,6 +7358,7 @@ main > .section:not(.hero) {
 
 .scroll-process-art {
   --art-rotate: -5deg;
+  --art-flip: 1;
   position: absolute;
   z-index: 1;
   right: -65px;
@@ -7345,7 +7369,7 @@ main > .section:not(.hero) {
   opacity: 0.1;
   filter: grayscale(0.5) saturate(0.55) brightness(0.7);
   pointer-events: none;
-  transform: translate(22px, 18px) rotate(var(--art-rotate)) scale(0.88);
+  transform: translate(22px, 18px) rotate(var(--art-rotate)) scale(0.88) scaleX(var(--art-flip));
   transform-origin: 58% 62%;
   transition: opacity 0.7s ease, filter 0.7s ease, transform 0.9s var(--ease);
 }
@@ -7354,16 +7378,20 @@ main > .section:not(.hero) {
   --art-rotate: 5deg;
 }
 
+.scroll-process-stage:last-child .scroll-process-art {
+  --art-flip: -1;
+}
+
 .scroll-process-stage.is-reached .scroll-process-art {
   opacity: 0.3;
   filter: grayscale(0.2) saturate(0.82) brightness(0.8);
-  transform: translate(9px, 8px) rotate(var(--art-rotate)) scale(0.94);
+  transform: translate(9px, 8px) rotate(var(--art-rotate)) scale(0.94) scaleX(var(--art-flip));
 }
 
 .scroll-process-stage.is-current .scroll-process-art {
   opacity: 0.92;
   filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.42)) saturate(1.08) brightness(0.96);
-  transform: translate(0, 0) rotate(var(--art-rotate)) scale(1);
+  transform: translate(0, 0) rotate(var(--art-rotate)) scale(1) scaleX(var(--art-flip));
 }
 
 .scroll-process-stage.is-reached .scroll-process-card {

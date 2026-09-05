@@ -56,6 +56,11 @@ async function main() {
         return images.every(image => image.naturalWidth >= 640);
       });
       assert.equal(artworkReady,true,`${width}: process artwork did not load`);
+      assert.equal(
+        await timeline.locator('.scroll-process-stage:last-child .scroll-process-art').evaluate(image => getComputedStyle(image).getPropertyValue('--art-flip').trim()),
+        '-1',
+        `${width}: launch artwork must be mirrored`,
+      );
 
       const firstFaq = page.locator('.faq-list details').first();
       const firstSummary = firstFaq.locator('summary');
