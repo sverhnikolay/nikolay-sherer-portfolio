@@ -24,9 +24,9 @@ async function main() {
       const states = [];
       for (let index = 0; index < 6; index++) {
         await stages.nth(index).evaluate(element => element.scrollIntoView({block:'center',behavior:'instant'}));
-        await page.waitForTimeout(180);
+        await page.waitForTimeout(260);
         states.push(await page.evaluate(() => ({
-          progress:Number(getComputedStyle(document.querySelector('[data-scroll-process]')).getPropertyValue('--process-progress')),
+          progress:document.querySelector('[data-scroll-process]').processProgress,
           reached:[...document.querySelectorAll('[data-process-stage]')].filter(stage=>stage.classList.contains('is-reached')).length,
           current:[...document.querySelectorAll('[data-process-stage]')].findIndex(stage=>stage.classList.contains('is-current')),
         })));
@@ -42,6 +42,23 @@ async function main() {
       });
       assert.ok(states[0].progress < 0.1);
       assert.ok(states.at(-1).progress > 0.9);
+
+      await stages.first().evaluate(element => element.scrollIntoView({block:'center',behavior:'instant'}));
+      await page.waitForTimeout(260);
+      const fastScrollSamples = await stages.last().evaluate(async element => {
+        element.scrollIntoView({block:'center',behavior:'instant'});
+        const process = document.querySelector('[data-scroll-process]');
+        const samples = [];
+        for (let index = 0; index < 10; index++) {
+          await new Promise(requestAnimationFrame);
+          samples.push(process.processProgress);
+        }
+        return samples;
+      });
+      assert.ok(fastScrollSamples.every((value, index) => index === 0 || value >= fastScrollSamples[index - 1]), `${width}: fast-scroll progress moved backwards`);
+      assert.ok(new Set(fastScrollSamples.map(value => value.toFixed(3))).size >= 4, `${width}: fast-scroll progress jumped instead of interpolating`);
+      assert.ok(Math.max(...fastScrollSamples.slice(1).map((value, index) => value - fastScrollSamples[index])) < 0.55, `${width}: fast-scroll frame jump is too large`);
+
       const timelineOverflow = await timeline.evaluate(element => ({
         overflow: element.scrollWidth > element.clientWidth,
         clientWidth: element.clientWidth,

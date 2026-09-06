@@ -320,11 +320,18 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
 document.querySelectorAll("[data-scroll-process]").forEach((process) => {
   const stages = [...process.querySelectorAll("[data-process-stage]")];
   const rail = process.querySelector(".scroll-process-rail");
-  if (!stages.length || !rail) return;
+  const fill = process.querySelector(".scroll-process-fill");
+  const marker = process.querySelector(".scroll-process-marker");
+  if (!stages.length || !rail || !fill || !marker) return;
 
   let nodePositions = [];
   let railStart = 0;
   let railLength = 1;
+  let processTop = 0;
+  let visualCursor = 0;
+  let initialized = false;
+  let activeIndex = -2;
+  let previousFrameTime = 0;
   let frame = 0;
 
   const measure = () => {
@@ -334,49 +341,85 @@ document.querySelectorAll("[data-scroll-process]").forEach((process) => {
     });
     railStart = nodePositions[0];
     railLength = Math.max(1, nodePositions.at(-1) - railStart);
+    processTop = process.getBoundingClientRect().top + window.scrollY;
     process.style.setProperty("--process-rail-start", `${railStart}px`);
     process.style.setProperty("--process-rail-length", `${railLength}px`);
   };
 
-  const render = () => {
-    frame = 0;
-    if (!nodePositions.length) measure();
-
-    const processRect = process.getBoundingClientRect();
+  const readCursor = () => {
     const triggerY = window.innerHeight * (window.innerWidth <= 760 ? 0.58 : 0.54);
-    const rawCursorPosition = triggerY - processRect.top;
-    const cursorPosition = Math.min(
+    const rawCursorPosition = window.scrollY + triggerY - processTop;
+    return Math.min(
       railStart + railLength,
       Math.max(railStart, rawCursorPosition),
     );
-    const started = rawCursorPosition >= railStart;
-    const progressValue = (cursorPosition - railStart) / railLength;
+  };
+
+  const draw = (cursorPosition) => {
+    const started = cursorPosition > railStart + 0.1;
+    const progressValue = Math.min(1, Math.max(0, (cursorPosition - railStart) / railLength));
+    const fillPosition = Math.max(0, cursorPosition - railStart);
     process.classList.toggle("is-started", started);
-    process.style.setProperty("--process-progress", progressValue.toFixed(4));
-    process.style.setProperty("--process-fill", `${cursorPosition - railStart}px`);
+    process.processProgress = progressValue;
+    fill.style.transform = `translateZ(0) scaleY(${progressValue.toFixed(5)})`;
+    marker.style.transform = `translate3d(-50%, -50%, 0) translate3d(0, ${fillPosition.toFixed(2)}px, 0)`;
 
     let currentIndex = -1;
     nodePositions.forEach((position, index) => {
-      const reached = started && cursorPosition >= position - 1;
-      stages[index].classList.toggle("is-reached", reached);
-      if (reached) currentIndex = index;
+      if (started && cursorPosition >= position - 1) currentIndex = index;
     });
-    stages.forEach((stage, index) => {
-      const current = index === currentIndex;
-      stage.classList.toggle("is-current", current);
-      if (current) stage.setAttribute("aria-current", "step");
-      else stage.removeAttribute("aria-current");
-    });
+
+    if (currentIndex !== activeIndex) {
+      activeIndex = currentIndex;
+      stages.forEach((stage, index) => {
+        const reached = index <= currentIndex;
+        const current = index === currentIndex;
+        stage.classList.toggle("is-reached", reached);
+        stage.classList.toggle("is-current", current);
+        if (current) stage.setAttribute("aria-current", "step");
+        else stage.removeAttribute("aria-current");
+      });
+    }
+  };
+
+  const render = (now) => {
+    if (!nodePositions.length) measure();
+    const targetCursor = readCursor();
+
+    if (!initialized || reduceMotion) {
+      visualCursor = targetCursor;
+      initialized = true;
+    } else {
+      const elapsed = previousFrameTime ? now - previousFrameTime : 16.67;
+      const boundedElapsed = Math.min(34, Math.max(8, elapsed));
+      const response = 1 - Math.exp(-boundedElapsed / 28);
+      visualCursor += (targetCursor - visualCursor) * response;
+      if (Math.abs(targetCursor - visualCursor) < 0.35) visualCursor = targetCursor;
+    }
+
+    previousFrameTime = now;
+    draw(visualCursor);
+
+    if (Math.abs(targetCursor - visualCursor) > 0.35) {
+      frame = window.requestAnimationFrame(render);
+    } else {
+      frame = 0;
+      previousFrameTime = 0;
+    }
   };
 
   const requestRender = () => {
     if (frame) return;
+    previousFrameTime = 0;
     frame = window.requestAnimationFrame(render);
   };
 
   const refresh = () => {
-    nodePositions = [];
+    const previousProgress = initialized
+      ? Math.min(1, Math.max(0, (visualCursor - railStart) / railLength))
+      : 0;
     measure();
+    if (initialized) visualCursor = railStart + railLength * previousProgress;
     requestRender();
   };
 

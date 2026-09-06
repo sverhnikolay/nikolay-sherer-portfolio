@@ -7079,8 +7079,6 @@ main > .section:not(.hero) {
 }
 
 .scroll-process {
-  --process-progress: 0;
-  --process-fill: 0px;
   --process-rail-start: 0px;
   --process-rail-length: 1px;
   position: relative;
@@ -7145,9 +7143,10 @@ main > .section:not(.hero) {
   border-radius: inherit;
   background: linear-gradient(180deg, #a50d15, #ff353d 44%, #ff7c81);
   box-shadow: 0 0 18px rgba(255, 53, 61, 0.5);
-  transform: scaleY(var(--process-progress));
+  backface-visibility: hidden;
+  transform: translateZ(0) scaleY(0);
   transform-origin: top;
-  transition: transform 0.1s linear;
+  will-change: transform;
 }
 
 .scroll-process-marker {
@@ -7164,8 +7163,10 @@ main > .section:not(.hero) {
   box-shadow: 0 0 0 8px rgba(255, 53, 61, 0.11), 0 0 28px rgba(255, 53, 61, 0.8);
   place-items: center;
   opacity: 0;
-  transform: translate(-50%, -50%) translateY(var(--process-fill));
-  transition: transform 0.1s linear, opacity 0.3s ease;
+  backface-visibility: hidden;
+  transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0);
+  transition: opacity 0.3s ease;
+  will-change: transform;
 }
 
 .scroll-process.is-started .scroll-process-marker { opacity: 1; }
