@@ -328,10 +328,7 @@ document.querySelectorAll("[data-scroll-process]").forEach((process) => {
   let railStart = 0;
   let railLength = 1;
   let processTop = 0;
-  let visualCursor = 0;
-  let initialized = false;
   let activeIndex = -2;
-  let previousFrameTime = 0;
   let frame = 0;
 
   const measure = () => {
@@ -382,44 +379,19 @@ document.querySelectorAll("[data-scroll-process]").forEach((process) => {
     }
   };
 
-  const render = (now) => {
+  const render = () => {
+    frame = 0;
     if (!nodePositions.length) measure();
-    const targetCursor = readCursor();
-
-    if (!initialized || reduceMotion) {
-      visualCursor = targetCursor;
-      initialized = true;
-    } else {
-      const elapsed = previousFrameTime ? now - previousFrameTime : 16.67;
-      const boundedElapsed = Math.min(34, Math.max(8, elapsed));
-      const response = 1 - Math.exp(-boundedElapsed / 28);
-      visualCursor += (targetCursor - visualCursor) * response;
-      if (Math.abs(targetCursor - visualCursor) < 0.35) visualCursor = targetCursor;
-    }
-
-    previousFrameTime = now;
-    draw(visualCursor);
-
-    if (Math.abs(targetCursor - visualCursor) > 0.35) {
-      frame = window.requestAnimationFrame(render);
-    } else {
-      frame = 0;
-      previousFrameTime = 0;
-    }
+    draw(readCursor());
   };
 
   const requestRender = () => {
     if (frame) return;
-    previousFrameTime = 0;
     frame = window.requestAnimationFrame(render);
   };
 
   const refresh = () => {
-    const previousProgress = initialized
-      ? Math.min(1, Math.max(0, (visualCursor - railStart) / railLength))
-      : 0;
     measure();
-    if (initialized) visualCursor = railStart + railLength * previousProgress;
     requestRender();
   };
 
