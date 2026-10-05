@@ -1,5 +1,5 @@
 [Unit]
-Description=Renew portfolio IP certificate and reload nginx
+Description=Renew portfolio TLS certificates and reload nginx
 Wants=network-online.target
 After=network-online.target
 
