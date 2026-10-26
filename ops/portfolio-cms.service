@@ -1,0 +1,26 @@
+[Unit]
+Description=Sherer portfolio content editor
+After=network.target
+
+[Service]
+Type=simple
+User=portfolio-cms
+Group=www-data
+WorkingDirectory=/var/www/nikolay-portfolio/current/cms
+Environment=CMS_DATA_DIR=/var/lib/portfolio-cms
+Environment=CMS_ORIGIN=https://sherer-dev.ru
+Environment=CMS_SECURE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/portfolio-cms/bin/python /var/www/nikolay-portfolio/current/cms/server.py
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/portfolio-cms
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

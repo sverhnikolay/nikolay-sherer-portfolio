@@ -1,0 +1,3 @@
+ops/*.sh text eol=lf
+cms/*.py text eol=lf
+admin/* text eol=lf

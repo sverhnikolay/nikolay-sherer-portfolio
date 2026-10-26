@@ -11,6 +11,7 @@ async function main() {
     for (const width of [390,1440]) {
       const page = await browser.newPage({viewport:{width,height:844},hasTouch:width<1000,isMobile:width<1000});
       await page.goto(process.argv[2] || 'http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+      await page.bringToFront();
       const timeline = page.locator('[data-scroll-process]');
       const stages = timeline.locator('[data-process-stage]');
       assert.equal(await stages.count(),6);
@@ -23,7 +24,10 @@ async function main() {
 
       const states = [];
       for (let index = 0; index < 6; index++) {
-        await stages.nth(index).evaluate(element => element.scrollIntoView({block:'center',behavior:'instant'}));
+        await stages.nth(index).evaluate(async element => {
+          element.scrollIntoView({block:'center',behavior:'instant'});
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
         await page.waitForTimeout(260);
         states.push(await page.evaluate(() => ({
           progress:document.querySelector('[data-scroll-process]').processProgress,
@@ -43,7 +47,10 @@ async function main() {
       assert.ok(states[0].progress < 0.1);
       assert.ok(states.at(-1).progress > 0.9);
 
-      await stages.first().evaluate(element => element.scrollIntoView({block:'center',behavior:'instant'}));
+      await stages.first().evaluate(async element => {
+        element.scrollIntoView({block:'center',behavior:'instant'});
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
       await page.waitForTimeout(260);
       const fastScrollSamples = await stages.last().evaluate(async element => {
         element.scrollIntoView({block:'center',behavior:'instant'});

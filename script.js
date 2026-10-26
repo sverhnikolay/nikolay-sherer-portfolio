@@ -247,36 +247,19 @@ document.querySelectorAll("[data-agent-chat]").forEach((chat) => {
     const runId = ++conversationRun;
     resetConversation();
 
-    showTyping();
-    await pause(650);
-    if (runId !== conversationRun) return;
-    hideTyping();
-    await typeBotMessage(0, runId);
-    await pause(750);
-    if (runId !== conversationRun) return;
-    showMessage(1);
-
-    const turns = [[2, 3], [4, 5], [6, 7], [8, 9]];
-    for (const [botIndex, clientIndex] of turns) {
-      await pause(850);
+    for (let index = 0; index < messages.length; index += 1) {
+      await pause(index === 0 ? 250 : 850);
       if (runId !== conversationRun) return;
-      showTyping();
-      await pause(650);
-      if (runId !== conversationRun) return;
-      hideTyping();
-      await typeBotMessage(botIndex, runId);
-      await pause(750);
-      if (runId !== conversationRun) return;
-      showMessage(clientIndex);
+      if (messages[index].classList.contains("agent-message--client")) {
+        showMessage(index);
+      } else {
+        showTyping();
+        await pause(650);
+        if (runId !== conversationRun) return;
+        hideTyping();
+        await typeBotMessage(index, runId);
+      }
     }
-
-    await pause(850);
-    if (runId !== conversationRun) return;
-    showTyping();
-    await pause(700);
-    if (runId !== conversationRun) return;
-    hideTyping();
-    await typeBotMessage(10, runId);
     await pause(4500);
     if (runId === conversationRun) playConversation();
   };

@@ -26,3 +26,21 @@ nginx -t
 ```
 
 Never add private keys or account credentials to this repository.
+
+## Content editor
+
+The service `portfolio-cms` runs `/opt/portfolio-cms/bin/python` as an unprivileged
+user, using the `cms/` code in the current release. Persistent state lives in
+`/var/lib/portfolio-cms`, owned by `portfolio-cms:www-data` (directory mode 750).
+Its SQLite database must remain private (600), while `media/` and its images
+must be readable by Nginx (755 / 644). See `cms/README.md`.
+
+After deploying a new release, restart `portfolio-cms` and check its health
+before reloading Nginx. Keep the previous symlink target for rollback. Never
+replace the database with local development data. The bootstrap Nginx config
+is only for a fresh installation without a certificate or CMS yet.
+
+For an already configured server, commit and push changes, then run
+`scripts/deploy.ps1`. It creates a SQLite backup, uploads only the tracked
+release, checks the CMS, and applies the Nginx config. The default deployment
+server is `135.106.228.32`; no passwords are stored in the script.

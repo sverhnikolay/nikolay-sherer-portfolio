@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.cms-data/
+.cms-venv/
+portfolio-deploy-*.tar.gz

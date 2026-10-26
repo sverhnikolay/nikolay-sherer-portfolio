@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Управление сайтом · Sherer</title>
+  <link rel="icon" href="/assets/favicon-64.png" />
+  <link rel="stylesheet" href="/admin/admin.css?v=1" />
+  <script src="/admin/admin.js?v=1" defer></script>
+</head>
+<body>
+  <div id="loading" class="loading">Открываем редактор…</div>
+  <main id="auth" class="auth-wrap" hidden>
+    <form id="auth-form" class="auth-card">
+      <a href="/" class="auth-brand"><img src="/assets/sherer-logo.webp" alt="Sherer" /></a>
+      <span class="eyebrow">ВАШ САЙТ ПОД ВАШИМ КОНТРОЛЕМ</span>
+      <h1 id="auth-title">Вход в админку</h1>
+      <p id="auth-description">Тексты, фото и проекты — всё можно изменить здесь.</p>
+      <label id="setup-token-label" hidden>Код первого входа<input id="setup-token" type="text" autocomplete="off" /></label>
+      <label>Пароль<input id="password" type="password" autocomplete="current-password" required maxlength="128" /></label>
+      <label id="confirm-label" hidden>Повторите пароль<input id="password-confirm" type="password" autocomplete="new-password" maxlength="128" /></label>
+      <p id="auth-error" class="error" role="alert"></p>
+      <button id="login-button" class="button primary" type="submit">Войти</button>
+      <a href="/" class="back-link">← Вернуться на сайт</a>
+    </form>
+  </main>
+
+  <div id="app" class="app" hidden>
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="/" target="_blank" rel="noopener"><img src="/assets/sherer-logo.webp" alt="Sherer" /></a>
+      <p class="sidebar-caption">Управление сайтом</p>
+      <nav id="section-nav" aria-label="Разделы редактора"></nav>
+      <div class="sidebar-bottom"><a href="/" target="_blank" rel="noopener">Открыть сайт ↗</a><button id="logout" type="button">Выйти из админки</button></div>
+    </aside>
+    <div class="workspace">
+      <header class="toolbar">
+        <div class="save-state"><span id="status-dot" class="status-dot"></span><span id="save-state" role="status">Все изменения сохранены</span></div>
+        <div class="toolbar-actions"><button id="preview" class="button quiet" type="button">Предпросмотр ↗</button><button id="publish" class="button primary" type="button">Сохранить и опубликовать</button></div>
+      </header>
+      <main id="editor" class="editor"></main>
+      <footer class="editor-footer"><span>Изменения появятся на сайте после публикации.</span><button id="draft" type="button">Сохранить как черновик</button></footer>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="confirm-dialog"><form method="dialog"><h2 id="confirm-title"></h2><p id="confirm-text"></p><div class="dialog-actions"><button class="button quiet" value="cancel">Отмена</button><button class="button primary" value="confirm">Да, продолжить</button></div></form></dialog>
+</body>
+</html>
