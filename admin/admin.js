@@ -72,7 +72,7 @@ function field(path, label, options = {}) {
 }
 
 function image(path, label) {
-  return `<div class="image-field"><img data-image-preview="${escape(path)}" src="/${escape(get(path))}" alt="${escape(label)}" /><div class="image-actions"><label>${escape(label)}</label><label class="file-button">↑ Загрузить изображение<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${escape(path)}" /></label><p>JPG, PNG или WebP · до 12 МБ</p></div></div>`;
+  return `<div class="image-field"><img data-image-preview="${escape(path)}" src="/${escape(get(path))}" alt="${escape(label)}" /><div class="image-actions"><label>${escape(label)}</label><div class="image-buttons"><label class="file-button">↑ Из файла<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${escape(path)}" /></label><button type="button" class="file-button" data-paste-image="${escape(path)}">▧ Из буфера обмена</button></div><p>PNG, JPG или WebP · до 12 МБ</p></div></div>`;
 }
 
 function panel(title, html, note = "") {
@@ -204,28 +204,66 @@ $("#editor").addEventListener("input", (event) => {
 $("#editor").addEventListener("change", async (event) => {
   const input = event.target.closest("[data-upload]");
   if (!input || !input.files[0]) return;
-  const file = input.files[0];
-  if (file.size > 12 * 1024 * 1024) { input.value = ""; return toast("Выберите изображение до 12 МБ.", true); }
-  input.disabled = true;
+  await uploadImage(input.dataset.upload, input.files[0], input);
+});
+
+async function uploadImage(path, file, control) {
+  if (file.size > 12 * 1024 * 1024) {
+    if (control instanceof HTMLInputElement) control.value = "";
+    return toast("Выберите изображение до 12 МБ.", true);
+  }
+  if (!/^image\/(png|jpeg|webp)$/i.test(file.type)) return toast("Выберите PNG, JPG или WebP.", true);
+  control.disabled = true;
   uploads += 1;
   updateStatus();
-  const label = input.closest(".file-button");
-  label.classList.add("saving");
+  const button = control.closest(".file-button");
+  button.classList.add("saving");
   try {
     const result = await api("upload", file, true);
-    set(input.dataset.upload, result.path);
-    const imageElement = [...document.querySelectorAll("[data-image-preview]")].find((n) => n.dataset.imagePreview === input.dataset.upload);
+    set(path, result.path);
+    const imageElement = [...document.querySelectorAll("[data-image-preview]")].find((n) => n.dataset.imagePreview === path);
     if (imageElement) imageElement.src = "/" + result.path;
     toast("Изображение загружено. Опубликуйте, когда будете готовы.");
   } catch (error) { toast(error.message, true); }
-  finally { input.disabled = false; input.value = ""; label.classList.remove("saving"); uploads -= 1; updateStatus(); }
-});
+  finally {
+    control.disabled = false;
+    if (control instanceof HTMLInputElement) control.value = "";
+    button.classList.remove("saving");
+    uploads -= 1;
+    updateStatus();
+  }
+}
+
+async function pasteImage(path, button) {
+  if (!navigator.clipboard?.read) {
+    return toast("Браузер не поддерживает вставку из буфера. Сохраните изображение и загрузите его файлом.", true);
+  }
+  button.disabled = true;
+  try {
+    const items = await navigator.clipboard.read();
+    const clipboardItem = items.find((item) => ["image/png", "image/jpeg", "image/webp"].some((type) => item.types.includes(type)));
+    if (!clipboardItem) return toast("В буфере нет изображения. Скопируйте фото и попробуйте снова.", true);
+    const type = ["image/png", "image/jpeg", "image/webp"].find((candidate) => clipboardItem.types.includes(candidate));
+    const blob = await clipboardItem.getType(type);
+    const extension = type === "image/jpeg" ? "jpg" : type.slice("image/".length);
+    const file = new File([blob], `portfolio-cover.${extension}`, {type});
+    await uploadImage(path, file, button);
+  } catch (error) {
+    const message = error.name === "NotAllowedError"
+      ? "Разрешите сайту читать буфер обмена в настройках браузера, затем нажмите ещё раз."
+      : "Не удалось прочитать изображение. Попробуйте скопировать его ещё раз.";
+    toast(message, true);
+  } finally {
+    button.disabled = false;
+  }
+}
 
 $("#editor").addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if (uploads) return toast("Дождитесь окончания загрузки изображения.");
   if (button.hasAttribute("data-logout")) return logout();
+  if (button.dataset.pasteImage) return pasteImage(button.dataset.pasteImage, button);
   if (button.dataset.add) {
     const path = button.dataset.add;
     const items = get(path);
